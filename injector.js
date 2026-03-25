@@ -7,36 +7,75 @@
     const baseGizmos = isPrimary ? 'https://gizmos.usr40k.dev/' : 'https://40476.github.io/web-gizmos/';
 
     const style = `
-    #mega-nav-wrap { all: initial; font-family: ui-monospace, 'Cascadia Code', monospace; display: block; position: sticky; top: 0; width: 100%; z-index: 99999; background: #050505; color: #00ff00; border-bottom: 1px solid #222; }
-    .nav-inner { display: flex; align-items: center; max-width: 1200px; margin: 0 auto; height: 50px; padding: 0 15px; position: relative; }
-    .nav-item { color: #888; text-decoration: none; padding: 10px 15px; font-size: 13px; transition: 0.2s; cursor: pointer; border: none; background: none; white-space: nowrap; }
-    .nav-item:hover { color: #00ff00; text-shadow: 0 0 5px #00ff00; }
+    #mega-nav-wrap { 
+        all: initial; 
+        font-family: ui-monospace, 'Cascadia Code', monospace; 
+        display: block; 
+        position: sticky; 
+        top: 0; 
+        width: 100%; 
+        z-index: 999999; 
+        background: #050505 !important; 
+        color: #00ff00 !important; 
+        border-bottom: 1px solid #222 !important;
+    }
+    #mega-nav-wrap * { box-sizing: border-box; }
     
-    #repo-check, #mobile-check { display: none; }
+    /* Specific selectors to override global CSS from other pages */
+    #mega-nav-wrap .nav-inner { 
+        display: flex !important; 
+        align-items: center !important; 
+        max-width: 1200px !important; 
+        margin: 0 auto !important; 
+        height: 50px !important; 
+        padding: 0 15px !important; 
+        position: relative !important;
+        background: transparent !important;
+        width: auto !important;
+        border: none !important;
+        flex-direction: row !important;
+    }
+    
+    #mega-nav-wrap .mega-nav-item { 
+        color: #888 !important; 
+        text-decoration: none !important; 
+        padding: 10px 15px !important; 
+        font-size: 13px !important; 
+        transition: 0.2s !important; 
+        cursor: pointer !important; 
+        border: none !important; 
+        background: none !important; 
+        white-space: nowrap !important;
+        display: inline-block !important;
+        width: auto !important;
+    }
+    #mega-nav-wrap .mega-nav-item:hover { color: #00ff00 !important; text-shadow: 0 0 5px #00ff00 !important; }
+    
+    #repo-check, #mobile-check { display: none !important; }
     
     /* Dropdown Styles */
-    .mega-drop {
+    #mega-nav-wrap .mega-drop {
         display: none; position: absolute; top: 50px; left: 0; width: 100%;
-        background: #050505; border-bottom: 2px solid #00ff00; padding: 20px;
-        box-sizing: border-box; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;
+        background: #050505 !important; border-bottom: 2px solid #00ff00 !important; padding: 20px !important;
+        box-sizing: border-box !important; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;
         max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     }
-    #repo-check:checked ~ .mega-drop { display: grid; }
+    #mega-nav-wrap #repo-check:checked ~ .mega-drop { display: grid !important; }
     
-    .repo-card { border: 1px solid #222; padding: 12px; background: #0a0a0a; display: flex; flex-direction: column; justify-content: space-between; }
-    .repo-card h3 { margin: 0; font-size: 14px; color: #fff; }
-    .repo-meta { font-size: 10px; color: #555; margin: 5px 0; display: flex; gap: 8px; align-items: center; }
-    .badge-fork { color: #ffaa00; border: 1px solid #ffaa00; padding: 1px 4px; border-radius: 3px; font-size: 9px; }
+    #mega-nav-wrap .repo-card { border: 1px solid #222 !important; padding: 12px !important; background: #0a0a0a !important; display: flex !important; flex-direction: column !important; justify-content: space-between !important; }
+    #mega-nav-wrap .repo-card h3 { margin: 0 !important; font-size: 14px !important; color: #fff !important; font-family: inherit !important; }
+    #mega-nav-wrap .repo-meta { font-size: 10px !important; color: #555 !important; margin: 5px 0 !important; display: flex !important; gap: 8px !important; align-items: center !important; }
+    #mega-nav-wrap .badge-fork { color: #ffaa00 !important; border: 1px solid #ffaa00 !important; padding: 1px 4px !important; border-radius: 3px !important; font-size: 9px !important; }
 
     /* Mobile Menu Toggle */
-    .mobile-label { display: none; font-size: 20px; color: #00ff00; padding: 10px; cursor: pointer; }
+    #mega-nav-wrap .mobile-label { display: none; font-size: 20px; color: #00ff00 !important; padding: 10px; cursor: pointer; }
 
     @media (max-width: 768px) {
-        .mobile-label { display: block; }
-        .nav-inner { height: auto; flex-direction: column; align-items: flex-start; display: none; padding-bottom: 10px; }
-        #mobile-check:checked ~ .nav-inner { display: flex; }
-        .nav-item { width: 100%; box-sizing: border-box; border-bottom: 1px solid #111; }
-        .mega-drop { position: relative; top: 0; width: 100vw; margin-left: -15px; }
+        #mega-nav-wrap .mobile-label { display: block !important; }
+        #mega-nav-wrap .nav-inner { height: auto !important; flex-direction: column !important; align-items: flex-start !important; display: none !important; padding-bottom: 10px !important; }
+        #mega-nav-wrap #mobile-check:checked ~ .nav-inner { display: flex !important; }
+        #mega-nav-wrap .mega-nav-item { width: 100% !important; box-sizing: border-box !important; border-bottom: 1px solid #111 !important; }
+        #mega-nav-wrap .mega-drop { position: relative !important; top: 0 !important; width: 100% !important; margin-left: 0 !important; }
     }
     `;
 
@@ -46,17 +85,17 @@
         <input type="checkbox" id="mobile-check">
         <label for="mobile-check" class="mobile-label">☰ [ MENU ]</label>
         <nav class="nav-inner">
-            <a class="nav-item" href="${baseHome}">[ HOME ]</a>
-            <a class="nav-item" href="${baseGizmos}">[ GIZMOS ]</a>
+            <a class="mega-nav-item" href="${baseHome}">[ HOME ]</a>
+            <a class="mega-nav-item" href="${baseGizmos}">[ GIZMOS ]</a>
             <div style="display: contents;">
                 <input type="checkbox" id="repo-check">
-                <label for="repo-check" class="nav-item">/REPOSITORIES/ ▾</label>
+                <label for="repo-check" class="mega-nav-item">/REPOSITORIES/ ▾</label>
                 <div class="mega-drop" id="repo-inject">
                     <p style="padding: 20px; color: #444;">Accessing GitHub API...</p>
                 </div>
             </div>
-            <a class="nav-item" href="https://matrix.to/#/@usr_40476:4d2.org" target="_blank">@MATRIX</a>
-            <a class="nav-item" href="${baseHome}?page=links_and_contact">CONTACT</a>
+            <a class="mega-nav-item" href="https://matrix.to/#/@usr_40476:4d2.org" target="_blank">@MATRIX</a>
+            <a class="mega-nav-item" href="${baseHome}?page=links_and_contact">CONTACT</a>
         </nav>
     </div>
     `;
@@ -78,13 +117,23 @@
                     const lReq = await fetch(`https://raw.githubusercontent.com/${repo.full_name}/${repo.default_branch}/.links`);
                     if (lReq.ok) {
                         const lText = await lReq.text();
+                        const lines = lText.split('\n').map(s => s.trim()).filter(s => s.length > 0);
                         const lMap = {};
-                        lText.split('\n').forEach(line => {
-                            const [k, v] = line.split(':').map(s => s.trim());
-                            if (k && v) lMap[k.toLowerCase()] = v;
+                        
+                        lines.forEach(line => {
+                            if (line.includes(':') && !line.startsWith('http')) {
+                                const [k, v] = line.split(':').map(s => s.trim());
+                                if (k && v) lMap[k.toLowerCase()] = v;
+                            } else {
+                                // Fallback for simple list of URLs
+                                if (line.includes('usr40k.dev')) lMap['dev'] = line;
+                                if (line.includes('github.io')) lMap['github'] = line;
+                            }
                         });
+
                         if (isPrimary && lMap['dev']) finalLink = lMap['dev'];
                         else if (!isPrimary && lMap['github']) finalLink = lMap['github'];
+                        else if (lMap['github']) finalLink = lMap['github']; // Secondary fallback
                     }
                 } catch(e) {}
             }
@@ -98,9 +147,12 @@
                         <span>${repo.language || 'txt'}</span>
                         <span>${new Date(repo.updated_at).toLocaleDateString()}</span>
                     </div>
-                    <p style="font-size: 11px; color: #666;">${repo.description || ''}</p>
+                    <p style="font-size: 11px; color: #666; margin: 0; font-family: inherit;">${repo.description || ''}</p>
                 </div>
-                <a href="${finalLink}" target="_blank" class="nav-item" style="padding:5px 0 0 0; font-size:11px; text-align:right; display:block;">>> OPEN</a>
+                <div style="text-align: right; margin-top: 10px;">
+                    <a href="${repo.html_url}" target="_blank" class="mega-nav-item" style="padding:0; font-size:10px; color: #444 !important; margin-right: 10px;">REPO</a>
+                    <a href="${finalLink}" target="_blank" class="mega-nav-item" style="padding:0; font-size:11px; color: #00ff00 !important; font-weight: bold;">>> OPEN</a>
+                </div>
             </div>`;
         }));
 
