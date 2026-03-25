@@ -6,20 +6,26 @@
     const baseHome = isPrimary ? 'https://usr40k.dev/' : 'https://40476.github.io/40476/';
     const baseGizmos = isPrimary ? 'https://gizmos.usr40k.dev/' : 'https://40476.github.io/web-gizmos/';
 
+    // Detect if the page is using a locked layout (like Gizmos)
+    const isLockedLayout = window.getComputedStyle(document.body).overflow === 'hidden' || 
+                          window.getComputedStyle(document.documentElement).overflow === 'hidden';
+
     const style = `
     #mega-nav-wrap { 
         all: initial; 
         font-family: ui-monospace, 'Cascadia Code', monospace; 
         display: block; 
-        position: sticky; 
+        position: ${isLockedLayout ? 'absolute' : 'sticky'}; 
         top: 0; 
+        left: 0;
         width: 100%; 
-        z-index: 999999; 
+        z-index: 9999999; 
         background: #050505 !important; 
         color: #00ff00 !important; 
         border-bottom: 1px solid #222 !important;
+        box-sizing: border-box !important;
     }
-    #mega-nav-wrap * { box-sizing: border-box; }
+    #mega-nav-wrap * { box-sizing: border-box !important; }
     
     /* Specific selectors to override global CSS from other pages */
     #mega-nav-wrap .nav-inner { 
@@ -34,6 +40,7 @@
         width: auto !important;
         border: none !important;
         flex-direction: row !important;
+        transform: none !important;
     }
     
     #mega-nav-wrap .mega-nav-item { 
@@ -48,6 +55,8 @@
         white-space: nowrap !important;
         display: inline-block !important;
         width: auto !important;
+        line-height: normal !important;
+        text-transform: none !important;
     }
     #mega-nav-wrap .mega-nav-item:hover { color: #00ff00 !important; text-shadow: 0 0 5px #00ff00 !important; }
     
@@ -63,12 +72,15 @@
     #mega-nav-wrap #repo-check:checked ~ .mega-drop { display: grid !important; }
     
     #mega-nav-wrap .repo-card { border: 1px solid #222 !important; padding: 12px !important; background: #0a0a0a !important; display: flex !important; flex-direction: column !important; justify-content: space-between !important; }
-    #mega-nav-wrap .repo-card h3 { margin: 0 !important; font-size: 14px !important; color: #fff !important; font-family: inherit !important; }
+    #mega-nav-wrap .repo-card h3 { margin: 0 !important; font-size: 14px !important; color: #fff !important; font-family: inherit !important; font-weight: bold !important;}
     #mega-nav-wrap .repo-meta { font-size: 10px !important; color: #555 !important; margin: 5px 0 !important; display: flex !important; gap: 8px !important; align-items: center !important; }
     #mega-nav-wrap .badge-fork { color: #ffaa00 !important; border: 1px solid #ffaa00 !important; padding: 1px 4px !important; border-radius: 3px !important; font-size: 9px !important; }
 
     /* Mobile Menu Toggle */
     #mega-nav-wrap .mobile-label { display: none; font-size: 20px; color: #00ff00 !important; padding: 10px; cursor: pointer; }
+
+    /* Shift main content down if not a locked layout */
+    ${!isLockedLayout ? 'body { padding-top: 0 !important; }' : ''}
 
     @media (max-width: 768px) {
         #mega-nav-wrap .mobile-label { display: block !important; }
@@ -125,15 +137,21 @@
                                 const [k, v] = line.split(':').map(s => s.trim());
                                 if (k && v) lMap[k.toLowerCase()] = v;
                             } else {
-                                // Fallback for simple list of URLs
+                                // Fallback for simple list of URLs in .links
                                 if (line.includes('usr40k.dev')) lMap['dev'] = line;
-                                if (line.includes('github.io')) lMap['github'] = line;
+                                else if (line.includes('github.io')) lMap['github'] = line;
                             }
                         });
 
-                        if (isPrimary && lMap['dev']) finalLink = lMap['dev'];
-                        else if (!isPrimary && lMap['github']) finalLink = lMap['github'];
-                        else if (lMap['github']) finalLink = lMap['github']; // Secondary fallback
+                        // Choose based on current environment
+                        if (isPrimary && lMap['dev']) {
+                            finalLink = lMap['dev'];
+                        } else if (!isPrimary && lMap['github']) {
+                            finalLink = lMap['github'];
+                        } else if (lMap['dev'] || lMap['github']) {
+                            // Absolute fallback if one is missing
+                            finalLink = lMap['dev'] || lMap['github'];
+                        }
                     }
                 } catch(e) {}
             }
@@ -150,8 +168,8 @@
                     <p style="font-size: 11px; color: #666; margin: 0; font-family: inherit;">${repo.description || ''}</p>
                 </div>
                 <div style="text-align: right; margin-top: 10px;">
-                    <a href="${repo.html_url}" target="_blank" class="mega-nav-item" style="padding:0; font-size:10px; color: #444 !important; margin-right: 10px;">REPO</a>
-                    <a href="${finalLink}" target="_blank" class="mega-nav-item" style="padding:0; font-size:11px; color: #00ff00 !important; font-weight: bold;">>> OPEN</a>
+                    <a href="${repo.html_url}" target="_blank" class="mega-nav-item" style="padding:0 !important; font-size:10px !important; color: #444 !important; margin-right: 10px !important; display: inline-block !important;">REPO</a>
+                    <a href="${finalLink}" target="_blank" class="mega-nav-item" style="padding:0 !important; font-size:11px !important; color: #00ff00 !important; font-weight: bold !important; display: inline-block !important;">>> OPEN</a>
                 </div>
             </div>`;
         }));
