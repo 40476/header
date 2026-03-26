@@ -11,8 +11,8 @@
                           window.getComputedStyle(document.documentElement).overflow === 'hidden';
 
     const style = `
-    /* CSS Variables for Theming */
-    :root {
+    /* Default: Dark Theme */
+    #mega-nav-wrap {
         --nav-bg: #050505;
         --nav-text: #00ff00;
         --nav-link: #888;
@@ -22,8 +22,11 @@
         --nav-heading: #fff;
     }
 
-    /* Light Theme Overrides */
-    .theme-light {
+    /* Light Theme Overrides 
+       (Catches if the class is on the HTML/BODY, or the nav wrapper itself) */
+    .theme-light #mega-nav-wrap,
+    #mega-nav-wrap.theme-light,
+    [data-theme="light"] #mega-nav-wrap {
         --nav-bg: #f8f9fa;
         --nav-text: #008800;
         --nav-link: #555;
@@ -31,6 +34,20 @@
         --nav-card: #ffffff;
         --nav-meta: #888;
         --nav-heading: #111;
+    }
+
+    /* Optional: OS Auto-Theme Fallback */
+    @media (prefers-color-scheme: light) {
+        #mega-nav-wrap:not(.theme-dark),
+        :not(.theme-dark) > #mega-nav-wrap {
+            --nav-bg: #f8f9fa;
+            --nav-text: #008800;
+            --nav-link: #555;
+            --nav-border: #ccc;
+            --nav-card: #ffffff;
+            --nav-meta: #888;
+            --nav-heading: #111;
+        }
     }
 
     #mega-nav-wrap { 
