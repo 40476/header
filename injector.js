@@ -22,8 +22,7 @@
         --nav-heading: #fff;
     }
 
-    /* Light Theme Overrides 
-       (Catches if the class is on the HTML/BODY, or the nav wrapper itself) */
+    /* Light Theme Overrides */
     .theme-light #mega-nav-wrap,
     #mega-nav-wrap.theme-light,
     [data-theme="light"] #mega-nav-wrap {
@@ -174,7 +173,7 @@
         color: var(--nav-text); 
         padding: 5px 15px; 
         cursor: pointer; 
-        z-index: 9999998; /* Just under the nav wrapper */
+        z-index: 9999998; 
         border: 1px solid var(--nav-border); 
         border-top: none;
         font-family: ui-monospace, 'Cascadia Code', monospace; 
@@ -223,23 +222,19 @@
     const unhideBtn = document.getElementById('nav-unhide-btn');
     const currentUrl = window.location.href;
 
-    // Handle reopening the nav
     unhideBtn.addEventListener('click', () => {
         navWrap.classList.remove('nav-collapsed');
         unhideBtn.style.display = 'none';
     });
 
-    // Fetch Repos with Fork Detection and header.json logic
     try {
         const r = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=15`);
         const data = await r.json();
         const container = document.getElementById('repo-inject');
         
         const repoItems = await Promise.all(data.map(async repo => {
-            // Default the finalLink to the repo URL (or the repo's homepage if you set one in GitHub)
             let finalLink = repo.homepage || repo.html_url;
 
-            // !header Logic
             if (repo.description && repo.description.includes('!header')) {
                 try {
                     const lReq = await fetch(`https://raw.githubusercontent.com/${repo.full_name}/${repo.default_branch}/header.json`);
@@ -248,10 +243,10 @@
                         
                         // Parse JSON Elements: Dynamic Links
                         if (headerData.links) {
-                            if (isGithubEnv && headerData.links.github) {
-                                finalLink = headerData.links.github;
-                            } else if (!isGithubEnv && headerData.links.dev) {
-                                finalLink = headerData.links.dev;
+                            if (isPrimary && headerData.links.dev) {
+                                finalLink = headerData.links.dev; // On .dev, use .dev link
+                            } else if (!isPrimary && headerData.links.github) {
+                                finalLink = headerData.links.github; // On GitHub Pages, use github link
                             } else if (headerData.links.dev) {
                                 finalLink = headerData.links.dev; // Fallback to dev if github link is missing
                             } else if (headerData.links.github) {
@@ -310,7 +305,6 @@
                 </div>
                 <div style="text-align: right; margin-top: 10px;">
                     <a href="${repo.html_url}" target="_blank" class="mega-nav-item" style="padding:0 !important; font-size:10px !important; margin-right: 10px !important; display: inline-block !important;">REPO</a>
-                    
                     <a href="${finalLink}" target="_blank" class="mega-nav-item" style="padding:0 !important; font-size:11px !important; color: var(--nav-text) !important; font-weight: bold !important; display: inline-block !important;">>> OPEN</a>
                 </div>
             </div>`;
