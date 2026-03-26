@@ -27,13 +27,26 @@
     .theme-light #mega-nav-wrap,
     #mega-nav-wrap.theme-light,
     [data-theme="light"] #mega-nav-wrap {
-        --nav-bg: #f8f9fa;
-        --nav-text: #008800;
-        --nav-link: #555;
-        --nav-border: #ccc;
-        --nav-card: #ffffff;
-        --nav-meta: #888;
-        --nav-heading: #111;
+        --nav-bg: #f8f9fa !important;
+        --nav-text: #008800 !important;
+        --nav-link: #555 !important;
+        --nav-border: #ccc !important;
+        --nav-card: #ffffff !important;
+        --nav-meta: #888 !important;
+        --nav-heading: #111 !important;
+    }
+
+    /* Explicit Dark Theme Overrides */
+    .theme-dark #mega-nav-wrap,
+    #mega-nav-wrap.theme-dark,
+    [data-theme="dark"] #mega-nav-wrap {
+        --nav-bg: #050505 !important;
+        --nav-text: #00ff00 !important;
+        --nav-link: #888 !important;
+        --nav-border: #222 !important;
+        --nav-card: #0a0a0a !important;
+        --nav-meta: #555 !important;
+        --nav-heading: #fff !important;
     }
 
     /* Optional: OS Auto-Theme Fallback */
@@ -258,10 +271,19 @@
                                 if (headerData.rules.theme === 'light') {
                                     document.documentElement.classList.add('theme-light');
                                     navWrap.classList.add('theme-light');
+                                    document.documentElement.classList.remove('theme-dark');
+                                    navWrap.classList.remove('theme-dark');
+                                } else if (headerData.rules.theme === 'dark') {
+                                    document.documentElement.classList.add('theme-dark');
+                                    navWrap.classList.add('theme-dark');
+                                    document.documentElement.classList.remove('theme-light');
+                                    navWrap.classList.remove('theme-light');
                                 } else if (headerData.rules.theme === 'auto') {
                                     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
                                         document.documentElement.classList.add('theme-light');
                                         navWrap.classList.add('theme-light');
+                                        document.documentElement.classList.remove('theme-dark');
+                                        navWrap.classList.remove('theme-dark');
                                     }
                                 }
                             }
