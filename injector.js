@@ -236,7 +236,8 @@
         const container = document.getElementById('repo-inject');
         
         const repoItems = await Promise.all(data.map(async repo => {
-            let finalLink = repo.html_url;
+            // Default the finalLink to the repo URL (or the repo's homepage if you set one in GitHub)
+            let finalLink = repo.homepage || repo.html_url;
 
             // !header Logic
             if (repo.description && repo.description.includes('!header')) {
@@ -245,16 +246,21 @@
                     if (lReq.ok) {
                         const headerData = await lReq.json();
                         
-                        // Parse JSON Elements: Links
+                        // Parse JSON Elements: Dynamic Links
                         if (headerData.links) {
-                            if (isPrimary && headerData.links.dev) finalLink = headerData.links.dev;
-                            else if (!isPrimary && headerData.links.github) finalLink = headerData.links.github;
-                            else finalLink = headerData.links.dev || headerData.links.github || finalLink;
+                            if (isGithubEnv && headerData.links.github) {
+                                finalLink = headerData.links.github;
+                            } else if (!isGithubEnv && headerData.links.dev) {
+                                finalLink = headerData.links.dev;
+                            } else if (headerData.links.dev) {
+                                finalLink = headerData.links.dev; // Fallback to dev if github link is missing
+                            } else if (headerData.links.github) {
+                                finalLink = headerData.links.github; // Fallback to github if dev link is missing
+                            }
                         }
 
                         // Parse JSON Elements: Rules
                         if (headerData.rules) {
-                            // 1. AutoHide Regex Evaluation
                             if (headerData.rules.autohideregex && Array.isArray(headerData.rules.autohideregex)) {
                                 const shouldHide = headerData.rules.autohideregex.some(rx => {
                                     try { return new RegExp(rx).test(currentUrl); } catch(e) { return false; }
@@ -266,7 +272,6 @@
                                 }
                             }
 
-                            // 2. Theme Evaluation (Applied if the current page URL overlaps with the repo's finalLink)
                             if (headerData.rules.theme && finalLink && currentUrl.startsWith(finalLink)) {
                                 if (headerData.rules.theme === 'light') {
                                     document.documentElement.classList.add('theme-light');
@@ -305,6 +310,7 @@
                 </div>
                 <div style="text-align: right; margin-top: 10px;">
                     <a href="${repo.html_url}" target="_blank" class="mega-nav-item" style="padding:0 !important; font-size:10px !important; margin-right: 10px !important; display: inline-block !important;">REPO</a>
+                    
                     <a href="${finalLink}" target="_blank" class="mega-nav-item" style="padding:0 !important; font-size:11px !important; color: var(--nav-text) !important; font-weight: bold !important; display: inline-block !important;">>> OPEN</a>
                 </div>
             </div>`;
