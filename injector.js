@@ -11,6 +11,28 @@
                           window.getComputedStyle(document.documentElement).overflow === 'hidden';
 
     const style = `
+    /* CSS Variables for Theming */
+    :root {
+        --nav-bg: #050505;
+        --nav-text: #00ff00;
+        --nav-link: #888;
+        --nav-border: #222;
+        --nav-card: #0a0a0a;
+        --nav-meta: #555;
+        --nav-heading: #fff;
+    }
+
+    /* Light Theme Overrides */
+    .theme-light {
+        --nav-bg: #f8f9fa;
+        --nav-text: #008800;
+        --nav-link: #555;
+        --nav-border: #ccc;
+        --nav-card: #ffffff;
+        --nav-meta: #888;
+        --nav-heading: #111;
+    }
+
     #mega-nav-wrap { 
         all: initial; 
         font-family: ui-monospace, 'Cascadia Code', monospace; 
@@ -20,14 +42,20 @@
         left: 0;
         width: 100%; 
         z-index: 9999999; 
-        background: #050505 !important; 
-        color: #00ff00 !important; 
-        border-bottom: 1px solid #222 !important;
+        background: var(--nav-bg) !important; 
+        color: var(--nav-text) !important; 
+        border-bottom: 1px solid var(--nav-border) !important;
         box-sizing: border-box !important;
+        transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease !important;
     }
+
+    /* Autohide Slide-up Class */
+    #mega-nav-wrap.nav-collapsed {
+        transform: translateY(-100%) !important;
+    }
+
     #mega-nav-wrap * { box-sizing: border-box !important; }
     
-    /* Specific selectors to override global CSS from other pages */
     #mega-nav-wrap .nav-inner { 
         display: flex !important; 
         align-items: center !important; 
@@ -44,11 +72,11 @@
     }
     
     #mega-nav-wrap .mega-nav-item { 
-        color: #888 !important; 
+        color: var(--nav-link) !important; 
         text-decoration: none !important; 
         padding: 10px 15px !important; 
         font-size: 13px !important; 
-        transition: 0.2s !important; 
+        transition: color 0.2s ease, text-shadow 0.2s ease !important; 
         cursor: pointer !important; 
         border: none !important; 
         background: none !important; 
@@ -58,42 +86,89 @@
         line-height: normal !important;
         text-transform: none !important;
     }
-    #mega-nav-wrap .mega-nav-item:hover { color: #00ff00 !important; text-shadow: 0 0 5px #00ff00 !important; }
+    
+    #mega-nav-wrap .mega-nav-item:hover { 
+        color: var(--nav-text) !important; 
+        text-shadow: 0 0 5px var(--nav-text) !important; 
+    }
     
     #repo-check, #mobile-check { display: none !important; }
     
-    /* Dropdown Styles */
+    /* Animated Dropdown Styles */
     #mega-nav-wrap .mega-drop {
-        display: none; position: absolute; top: 50px; left: 0; width: 100%;
-        background: #050505 !important; border-bottom: 2px solid #00ff00 !important; padding: 20px !important;
-        box-sizing: border-box !important; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;
-        max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        visibility: hidden;
+        opacity: 0;
+        transform: translateY(-10px);
+        position: absolute; top: 50px; left: 0; width: 100%;
+        background: var(--nav-bg) !important; 
+        border-bottom: 2px solid var(--nav-text) !important; 
+        padding: 20px !important;
+        box-sizing: border-box !important; 
+        display: grid; 
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;
+        max-height: 80vh; overflow-y: auto; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease !important;
+        pointer-events: none;
     }
-    #mega-nav-wrap #repo-check:checked ~ .mega-drop { display: grid !important; }
     
-    #mega-nav-wrap .repo-card { border: 1px solid #222 !important; padding: 12px !important; background: #0a0a0a !important; display: flex !important; flex-direction: column !important; justify-content: space-between !important; }
-    #mega-nav-wrap .repo-card h3 { margin: 0 !important; font-size: 14px !important; color: #fff !important; font-family: inherit !important; font-weight: bold !important;}
-    #mega-nav-wrap .repo-meta { font-size: 10px !important; color: #555 !important; margin: 5px 0 !important; display: flex !important; gap: 8px !important; align-items: center !important; }
+    #mega-nav-wrap #repo-check:checked ~ .mega-drop { 
+        visibility: visible !important; 
+        opacity: 1 !important; 
+        transform: translateY(0) !important;
+        pointer-events: auto !important;
+    }
+    
+    #mega-nav-wrap .repo-card { 
+        border: 1px solid var(--nav-border) !important; 
+        padding: 12px !important; 
+        background: var(--nav-card) !important; 
+        display: flex !important; 
+        flex-direction: column !important; 
+        justify-content: space-between !important; 
+        transition: background-color 0.3s ease; 
+    }
+    #mega-nav-wrap .repo-card h3 { margin: 0 !important; font-size: 14px !important; color: var(--nav-heading) !important; font-family: inherit !important; font-weight: bold !important;}
+    #mega-nav-wrap .repo-meta { font-size: 10px !important; color: var(--nav-meta) !important; margin: 5px 0 !important; display: flex !important; gap: 8px !important; align-items: center !important; }
     #mega-nav-wrap .badge-fork { color: #ffaa00 !important; border: 1px solid #ffaa00 !important; padding: 1px 4px !important; border-radius: 3px !important; font-size: 9px !important; }
 
-    /* Mobile Menu Toggle */
-    #mega-nav-wrap .mobile-label { display: none; font-size: 20px; color: #00ff00 !important; padding: 10px; cursor: pointer; }
+    #mega-nav-wrap .mobile-label { display: none; font-size: 20px; color: var(--nav-text) !important; padding: 10px; cursor: pointer; }
 
-    /* Shift main content down if not a locked layout */
+    /* The pull-down tab for when nav is autohidden */
+    #nav-unhide-btn {
+        display: none; 
+        position: fixed; 
+        top: 0; 
+        right: 20px; 
+        background: var(--nav-bg); 
+        color: var(--nav-text); 
+        padding: 5px 15px; 
+        cursor: pointer; 
+        z-index: 9999998; /* Just under the nav wrapper */
+        border: 1px solid var(--nav-border); 
+        border-top: none;
+        font-family: ui-monospace, 'Cascadia Code', monospace; 
+        font-size: 11px;
+        border-radius: 0 0 5px 5px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
     ${!isLockedLayout ? 'body { padding-top: 0 !important; }' : ''}
 
     @media (max-width: 768px) {
         #mega-nav-wrap .mobile-label { display: block !important; }
         #mega-nav-wrap .nav-inner { height: auto !important; flex-direction: column !important; align-items: flex-start !important; display: none !important; padding-bottom: 10px !important; }
         #mega-nav-wrap #mobile-check:checked ~ .nav-inner { display: flex !important; }
-        #mega-nav-wrap .mega-nav-item { width: 100% !important; box-sizing: border-box !important; border-bottom: 1px solid #111 !important; }
+        #mega-nav-wrap .mega-nav-item { width: 100% !important; box-sizing: border-box !important; border-bottom: 1px solid var(--nav-border) !important; }
         #mega-nav-wrap .mega-drop { position: relative !important; top: 0 !important; width: 100% !important; margin-left: 0 !important; }
     }
     `;
 
     const html = `
+    <style>${style}</style>
+    <div id="nav-unhide-btn">▼ NAV</div>
     <div id="mega-nav-wrap">
-        <style>${style}</style>
         <input type="checkbox" id="mobile-check">
         <label for="mobile-check" class="mobile-label">☰ [ MENU ]</label>
         <nav class="nav-inner">
@@ -103,7 +178,7 @@
                 <input type="checkbox" id="repo-check">
                 <label for="repo-check" class="mega-nav-item">/REPOSITORIES/ ▾</label>
                 <div class="mega-drop" id="repo-inject">
-                    <p style="padding: 20px; color: #444;">Accessing GitHub API...</p>
+                    <p style="padding: 20px; color: var(--nav-meta);">Accessing GitHub API...</p>
                 </div>
             </div>
             <a class="mega-nav-item" href="https://matrix.to/#/@usr_40476:4d2.org" target="_blank">@MATRIX</a>
@@ -114,7 +189,17 @@
 
     document.body.insertAdjacentHTML('afterbegin', html);
 
-    // Fetch Repos with Fork Detection and !link logic
+    const navWrap = document.getElementById('mega-nav-wrap');
+    const unhideBtn = document.getElementById('nav-unhide-btn');
+    const currentUrl = window.location.href;
+
+    // Handle reopening the nav
+    unhideBtn.addEventListener('click', () => {
+        navWrap.classList.remove('nav-collapsed');
+        unhideBtn.style.display = 'none';
+    });
+
+    // Fetch Repos with Fork Detection and header.json logic
     try {
         const r = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=15`);
         const data = await r.json();
@@ -123,37 +208,49 @@
         const repoItems = await Promise.all(data.map(async repo => {
             let finalLink = repo.html_url;
 
-            // !link Logic
-            if (repo.description && repo.description.includes('!link')) {
+            // !header Logic
+            if (repo.description && repo.description.includes('!header')) {
                 try {
-                    const lReq = await fetch(`https://raw.githubusercontent.com/${repo.full_name}/${repo.default_branch}/.links`);
+                    const lReq = await fetch(`https://raw.githubusercontent.com/${repo.full_name}/${repo.default_branch}/header.json`);
                     if (lReq.ok) {
-                        const lText = await lReq.text();
-                        const lines = lText.split('\n').map(s => s.trim()).filter(s => s.length > 0);
-                        const lMap = {};
+                        const headerData = await lReq.json();
                         
-                        lines.forEach(line => {
-                            if (line.includes(':') && !line.startsWith('http')) {
-                                const [k, v] = line.split(':').map(s => s.trim());
-                                if (k && v) lMap[k.toLowerCase()] = v;
-                            } else {
-                                // Fallback for simple list of URLs in .links
-                                if (line.includes('usr40k.dev')) lMap['dev'] = line;
-                                else if (line.includes('github.io')) lMap['github'] = line;
-                            }
-                        });
+                        // Parse JSON Elements: Links
+                        if (headerData.links) {
+                            if (isPrimary && headerData.links.dev) finalLink = headerData.links.dev;
+                            else if (!isPrimary && headerData.links.github) finalLink = headerData.links.github;
+                            else finalLink = headerData.links.dev || headerData.links.github || finalLink;
+                        }
 
-                        // Choose based on current environment
-                        if (isPrimary && lMap['dev']) {
-                            finalLink = lMap['dev'];
-                        } else if (!isPrimary && lMap['github']) {
-                            finalLink = lMap['github'];
-                        } else if (lMap['dev'] || lMap['github']) {
-                            // Absolute fallback if one is missing
-                            finalLink = lMap['dev'] || lMap['github'];
+                        // Parse JSON Elements: Rules
+                        if (headerData.rules) {
+                            // 1. AutoHide Regex Evaluation
+                            if (headerData.rules.autohideregex && Array.isArray(headerData.rules.autohideregex)) {
+                                const shouldHide = headerData.rules.autohideregex.some(rx => {
+                                    try { return new RegExp(rx).test(currentUrl); } catch(e) { return false; }
+                                });
+                                
+                                if (shouldHide) {
+                                    navWrap.classList.add('nav-collapsed');
+                                    unhideBtn.style.display = 'block';
+                                }
+                            }
+
+                            // 2. Theme Evaluation (Applied if the current page URL overlaps with the repo's finalLink)
+                            if (headerData.rules.theme && finalLink && currentUrl.startsWith(finalLink)) {
+                                if (headerData.rules.theme === 'light') {
+                                    document.documentElement.classList.add('theme-light');
+                                    navWrap.classList.add('theme-light');
+                                } else if (headerData.rules.theme === 'auto') {
+                                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                                        document.documentElement.classList.add('theme-light');
+                                        navWrap.classList.add('theme-light');
+                                    }
+                                }
+                            }
                         }
                     }
-                } catch(e) {}
+                } catch(e) { console.error('Error parsing header.json for', repo.name, e); }
             }
 
             return `
@@ -165,11 +262,11 @@
                         <span>${repo.language || 'txt'}</span>
                         <span>${new Date(repo.updated_at).toLocaleDateString()}</span>
                     </div>
-                    <p style="font-size: 11px; color: #666; margin: 0; font-family: inherit;">${repo.description || ''}</p>
+                    <p style="font-size: 11px; color: var(--nav-meta); margin: 0; font-family: inherit;">${repo.description ? repo.description.replace('!header', '').trim() : ''}</p>
                 </div>
                 <div style="text-align: right; margin-top: 10px;">
-                    <a href="${repo.html_url}" target="_blank" class="mega-nav-item" style="padding:0 !important; font-size:10px !important; color: #444 !important; margin-right: 10px !important; display: inline-block !important;">REPO</a>
-                    <a href="${finalLink}" target="_blank" class="mega-nav-item" style="padding:0 !important; font-size:11px !important; color: #00ff00 !important; font-weight: bold !important; display: inline-block !important;">>> OPEN</a>
+                    <a href="${repo.html_url}" target="_blank" class="mega-nav-item" style="padding:0 !important; font-size:10px !important; margin-right: 10px !important; display: inline-block !important;">REPO</a>
+                    <a href="${finalLink}" target="_blank" class="mega-nav-item" style="padding:0 !important; font-size:11px !important; color: var(--nav-text) !important; font-weight: bold !important; display: inline-block !important;">>> OPEN</a>
                 </div>
             </div>`;
         }));
