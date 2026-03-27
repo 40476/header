@@ -342,7 +342,7 @@
             return `
             <div class="repo-card">
                 <div>
-                    <h3>${repo.fork ? '🍴' : '📂'} ${repo.name}</h3>
+                    <h3>${repo.fork ? '&#9282;' : '📂'} ${repo.name}</h3>
                     <div class="repo-meta">
                         ${repo.fork ? '<span class="badge-fork">FORK</span>' : ''}
                         <span>${repo.language || 'txt'}</span>
