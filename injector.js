@@ -163,17 +163,17 @@
 
     #mega-nav-wrap .mobile-label { display: none; font-size: 20px; color: var(--nav-text) !important; padding: 10px; cursor: pointer; }
 
-    /* The pull-down tab for when nav is autohidden */
+    /* Fix: Move toggle button inside wrapper and hang it off the bottom */
     #nav-unhide-btn {
         display: none; 
-        position: fixed; 
-        top: 0; 
+        position: absolute; 
+        bottom: -24px; /* Hangs right below the nav */
         right: 20px; 
         background: var(--nav-bg); 
         color: var(--nav-text); 
-        padding: 5px 15px; 
+        padding: 4px 12px; 
         cursor: pointer; 
-        z-index: 9999998; 
+        z-index: 10000000; 
         border: 1px solid var(--nav-border); 
         border-top: none;
         font-family: ui-monospace, 'Cascadia Code', monospace; 
@@ -191,13 +191,12 @@
         #mega-nav-wrap #mobile-check:checked ~ .nav-inner { display: flex !important; }
         #mega-nav-wrap .mega-nav-item { width: 100% !important; box-sizing: border-box !important; border-bottom: 1px solid var(--nav-border) !important; }
         
-        /* Fixed Mobile Layout Issue Here */
         #mega-nav-wrap .mega-drop { 
             position: relative !important; 
             top: 0 !important; 
             width: 100% !important; 
             margin-left: 0 !important; 
-            display: none !important; /* Removes ghost padding from flow */
+            display: none !important; 
         }
         #mega-nav-wrap #repo-check:checked ~ .mega-drop { 
             display: grid !important; 
@@ -207,8 +206,8 @@
 
     const html = `
     <style>${style}</style>
-    <div id="nav-unhide-btn">▼ NAV</div>
     <div id="mega-nav-wrap">
+        <div id="nav-unhide-btn">▼ NAV</div>
         <input type="checkbox" id="mobile-check">
         <label for="mobile-check" class="mobile-label">☰ [ MENU ]</label>
         <nav class="nav-inner">
@@ -233,9 +232,16 @@
     const unhideBtn = document.getElementById('nav-unhide-btn');
     const currentUrl = window.location.href;
 
+    // Fix: Add toggle logic instead of one-way opening
     unhideBtn.addEventListener('click', () => {
-        navWrap.classList.remove('nav-collapsed');
-        unhideBtn.style.display = 'none';
+        const isCollapsed = navWrap.classList.contains('nav-collapsed');
+        if (isCollapsed) {
+            navWrap.classList.remove('nav-collapsed');
+            unhideBtn.innerText = '▲ HIDE';
+        } else {
+            navWrap.classList.add('nav-collapsed');
+            unhideBtn.innerText = '▼ NAV';
+        }
     });
 
     try {
@@ -250,7 +256,7 @@
                 try {
                     const lReq = await fetch(`https://raw.githubusercontent.com/${repo.full_name}/${repo.default_branch}/header.json`);
                     if (lReq.ok) {
-                        let headerData = await lReq.json(); // Changed to let so we can merge
+                        let headerData = await lReq.json(); 
                         
                         // EXTENDED CONFIG LOGIC 
                         if (headerData.extendedConfigs && Array.isArray(headerData.extendedConfigs)) {
@@ -259,7 +265,6 @@
                             });
 
                             if (shouldExtend) {
-                                // Extract exact domain/path/projectfolder/ from currentUrl
                                 const urlWithoutQuery = currentUrl.split('?')[0];
                                 const currentDir = urlWithoutQuery.endsWith('/') 
                                     ? urlWithoutQuery 
@@ -269,7 +274,6 @@
                                     const extReq = await fetch(`${currentDir}header-extended.json`);
                                     if (extReq.ok) {
                                         const extData = await extReq.json();
-                                        // Merge standard arrays/objects with extended config overrides
                                         headerData = {
                                             ...headerData,
                                             ...extData,
@@ -286,13 +290,13 @@
                         // Parse JSON Elements: Dynamic Links
                         if (headerData.links) {
                             if (isPrimary && headerData.links.dev) {
-                                finalLink = headerData.links.dev; // On .dev, use .dev link
+                                finalLink = headerData.links.dev; 
                             } else if (!isPrimary && headerData.links.github) {
-                                finalLink = headerData.links.github; // On GitHub Pages, use github link
+                                finalLink = headerData.links.github; 
                             } else if (headerData.links.dev) {
-                                finalLink = headerData.links.dev; // Fallback to dev if github link is missing
+                                finalLink = headerData.links.dev; 
                             } else if (headerData.links.github) {
-                                finalLink = headerData.links.github; // Fallback to github if dev link is missing
+                                finalLink = headerData.links.github; 
                             }
                         }
 
@@ -306,6 +310,7 @@
                                 if (shouldHide) {
                                     navWrap.classList.add('nav-collapsed');
                                     unhideBtn.style.display = 'block';
+                                    unhideBtn.innerText = '▼ NAV'; // Ensure correct text on load
                                 }
                             }
 
@@ -337,7 +342,7 @@
             return `
             <div class="repo-card">
                 <div>
-                    <h3>${repo.fork ? '&#9282;' : '📂'} ${repo.name}</h3>
+                    <h3>${repo.fork ? '🍴' : '📂'} ${repo.name}</h3>
                     <div class="repo-meta">
                         ${repo.fork ? '<span class="badge-fork">FORK</span>' : ''}
                         <span>${repo.language || 'txt'}</span>
