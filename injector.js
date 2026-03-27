@@ -8,7 +8,7 @@
 
     // Detect if the page is using a locked layout (like Gizmos)
     const isLockedLayout = window.getComputedStyle(document.body).overflow === 'hidden' || 
-                          window.getComputedStyle(document.documentElement).overflow === 'hidden';
+                           window.getComputedStyle(document.documentElement).overflow === 'hidden';
 
     const style = `
     /* Default: Dark Theme */
@@ -190,7 +190,18 @@
         #mega-nav-wrap .nav-inner { height: auto !important; flex-direction: column !important; align-items: flex-start !important; display: none !important; padding-bottom: 10px !important; }
         #mega-nav-wrap #mobile-check:checked ~ .nav-inner { display: flex !important; }
         #mega-nav-wrap .mega-nav-item { width: 100% !important; box-sizing: border-box !important; border-bottom: 1px solid var(--nav-border) !important; }
-        #mega-nav-wrap .mega-drop { position: relative !important; top: 0 !important; width: 100% !important; margin-left: 0 !important; }
+        
+        /* Fixed Mobile Layout Issue Here */
+        #mega-nav-wrap .mega-drop { 
+            position: relative !important; 
+            top: 0 !important; 
+            width: 100% !important; 
+            margin-left: 0 !important; 
+            display: none !important; /* Removes ghost padding from flow */
+        }
+        #mega-nav-wrap #repo-check:checked ~ .mega-drop { 
+            display: grid !important; 
+        }
     }
     `;
 
@@ -239,8 +250,39 @@
                 try {
                     const lReq = await fetch(`https://raw.githubusercontent.com/${repo.full_name}/${repo.default_branch}/header.json`);
                     if (lReq.ok) {
-                        const headerData = await lReq.json();
+                        let headerData = await lReq.json(); // Changed to let so we can merge
                         
+                        // EXTENDED CONFIG LOGIC 
+                        if (headerData.extendedConfigs && Array.isArray(headerData.extendedConfigs)) {
+                            const shouldExtend = headerData.extendedConfigs.some(rx => {
+                                try { return new RegExp(rx).test(currentUrl); } catch(e) { return false; }
+                            });
+
+                            if (shouldExtend) {
+                                // Extract exact domain/path/projectfolder/ from currentUrl
+                                const urlWithoutQuery = currentUrl.split('?')[0];
+                                const currentDir = urlWithoutQuery.endsWith('/') 
+                                    ? urlWithoutQuery 
+                                    : urlWithoutQuery.substring(0, urlWithoutQuery.lastIndexOf('/') + 1);
+                                
+                                try {
+                                    const extReq = await fetch(`${currentDir}header-extended.json`);
+                                    if (extReq.ok) {
+                                        const extData = await extReq.json();
+                                        // Merge standard arrays/objects with extended config overrides
+                                        headerData = {
+                                            ...headerData,
+                                            ...extData,
+                                            links: { ...(headerData.links || {}), ...(extData.links || {}) },
+                                            rules: { ...(headerData.rules || {}), ...(extData.rules || {}) }
+                                        };
+                                    }
+                                } catch(e) {
+                                    console.warn('Could not fetch or parse header-extended.json:', e);
+                                }
+                            }
+                        }
+
                         // Parse JSON Elements: Dynamic Links
                         if (headerData.links) {
                             if (isPrimary && headerData.links.dev) {
@@ -295,7 +337,7 @@
             return `
             <div class="repo-card">
                 <div>
-                    <h3>${repo.fork ? '🍴' : '📂'} ${repo.name}</h3>
+                    <h3>${repo.fork ? '&#9282;' : '📂'} ${repo.name}</h3>
                     <div class="repo-meta">
                         ${repo.fork ? '<span class="badge-fork">FORK</span>' : ''}
                         <span>${repo.language || 'txt'}</span>
