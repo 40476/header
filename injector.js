@@ -62,11 +62,20 @@
         }
     }
 
+    /* FORCE RESET ON LABELS TO BLOCK APP CSS BLEED */
+    #mega-nav-wrap label {
+        margin: 0 !important;
+        text-transform: none !important;
+        letter-spacing: normal !important;
+        font-weight: normal !important;
+    }
+
     #mega-nav-wrap { 
         all: initial; 
         font-family: ui-monospace, 'Cascadia Code', monospace; 
         display: block; 
-        position: ${isLockedLayout ? 'absolute' : 'sticky'}; 
+        /* CHANGED TO FIXED: This takes it out of the app body's flexbox flow */
+        position: ${isLockedLayout ? 'absolute' : 'fixed'}; 
         top: 0; 
         left: 0;
         width: 100%; 
@@ -163,11 +172,10 @@
 
     #mega-nav-wrap .mobile-label { display: none; font-size: 20px; color: var(--nav-text) !important; padding: 10px; cursor: pointer; }
 
-    /* Fix: Move toggle button inside wrapper and hang it off the bottom */
     #nav-unhide-btn {
         display: none; 
         position: absolute; 
-        bottom: -24px; /* Hangs right below the nav */
+        bottom: -24px;
         right: 20px; 
         background: var(--nav-bg); 
         color: var(--nav-text); 
@@ -183,7 +191,8 @@
         transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    ${!isLockedLayout ? 'body { padding-top: 0 !important; }' : ''}
+    /* PUSH HTML DOWN INSTEAD OF OVERWRITING BODY PADDING */
+    ${!isLockedLayout ? 'html { padding-top: 50px !important; box-sizing: border-box; }' : ''}
 
     @media (max-width: 768px) {
         #mega-nav-wrap .mobile-label { display: block !important; }
@@ -232,7 +241,6 @@
     const unhideBtn = document.getElementById('nav-unhide-btn');
     const currentUrl = window.location.href;
 
-    // Fix: Add toggle logic instead of one-way opening
     unhideBtn.addEventListener('click', () => {
         const isCollapsed = navWrap.classList.contains('nav-collapsed');
         if (isCollapsed) {
@@ -258,7 +266,6 @@
                     if (lReq.ok) {
                         let headerData = await lReq.json(); 
                         
-                        // EXTENDED CONFIG LOGIC 
                         if (headerData.extendedConfigs && Array.isArray(headerData.extendedConfigs)) {
                             const shouldExtend = headerData.extendedConfigs.some(rx => {
                                 try { return new RegExp(rx).test(currentUrl); } catch(e) { return false; }
@@ -287,7 +294,6 @@
                             }
                         }
 
-                        // Parse JSON Elements: Dynamic Links
                         if (headerData.links) {
                             if (isPrimary && headerData.links.dev) {
                                 finalLink = headerData.links.dev; 
@@ -300,7 +306,6 @@
                             }
                         }
 
-                        // Parse JSON Elements: Rules
                         if (headerData.rules) {
                             if (headerData.rules.autohideregex && Array.isArray(headerData.rules.autohideregex)) {
                                 const shouldHide = headerData.rules.autohideregex.some(rx => {
@@ -310,7 +315,7 @@
                                 if (shouldHide) {
                                     navWrap.classList.add('nav-collapsed');
                                     unhideBtn.style.display = 'block';
-                                    unhideBtn.innerText = '▼ NAV'; // Ensure correct text on load
+                                    unhideBtn.innerText = '▼ NAV'; 
                                 }
                             }
 
