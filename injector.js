@@ -111,8 +111,10 @@
         const start = () => {
             if (isAnim) return;
             if (origW === null) {
-                origW = el.getBoundingClientRect().width;
+                // Use ceil to prevent right-side blank space/rounding issues
+                origW = Math.ceil(el.getBoundingClientRect().width);
                 el.style.width = `${origW}px`;
+                el.style.display = 'inline-block';
             }
             isAnim = true;
             const animate = () => {
@@ -191,7 +193,6 @@
             justify-content: center;
             pointer-events: auto;
             width: 100%;
-            /* Removed heavy box-shadow as requested */
         }
 
         nav {
@@ -222,6 +223,7 @@
             border: none;
             font-family: inherit;
             position: relative;
+            box-sizing: border-box;
         }
 
         .item:hover { color: var(--nav-text); }
@@ -247,9 +249,13 @@
         .repo-card {
             border: 1px solid var(--nav-border); padding: 12px; background: var(--nav-card);
             display: flex; flex-direction: column; justify-content: space-between; transition: border-color 0.2s;
+            overflow: hidden;
         }
         .repo-card:hover { border-color: var(--nav-text); }
-        .repo-card h3 { margin: 0; font-size: 14px; color: var(--nav-heading); font-weight: bold; }
+        .repo-card h3 { 
+            margin: 0; font-size: 14px; color: var(--nav-heading); font-weight: bold; 
+            cursor: pointer; width: fit-content;
+        }
         .repo-meta { font-size: 10px; color: var(--nav-meta); margin: 5px 0; display: flex; gap: 8px; align-items: center; }
         .badge-fork { color: #ffaa00; border: 1px solid #ffaa00; padding: 1px 4px; border-radius: 3px; font-size: 9px; }
         .repo-desc { font-size: 11px; color: var(--nav-meta); margin: 0; }
@@ -270,7 +276,7 @@
             .mobile-label { display: flex; border-bottom: 1px solid var(--nav-border); }
             .nav-links { display: none; flex-direction: column; height: auto; background: var(--nav-bg); }
             #mobile-toggle:checked ~ .nav-links { display: flex; }
-            .item { width: 100%; height: 50px; border-bottom: 1px solid var(--nav-border); justify-content: flex-start; }
+            .item { width: 100%; height: 50px; border-bottom: 1px solid var(--nav-border); justify-content: flex-start; padding: 0 20px; }
             .mega-drop { position: relative; top: 0; grid-template-columns: 1fr; display: none; padding: 10px; transform: none; }
             #repo-check:checked ~ .mega-drop { display: grid; }
         }
@@ -306,7 +312,7 @@
         </div>
     `;
 
-    // Apply ASCII ripple to items
+    // Apply ASCII ripple to navigation items
     shadow.querySelectorAll('.js-ascii').forEach(el => createASCIIShift(el));
 
     const unhideBtn = shadow.getElementById('nav-unhide-btn');
@@ -327,7 +333,6 @@
                     const lReq = await fetch(`https://raw.githubusercontent.com/${repo.full_name}/${repo.default_branch}/header.json`);
                     if (lReq.ok) {
                         const headerData = await lReq.json();
-                        // (Link and Rules logic remains identical to previous version)
                         if (headerData.rules?.autohideregex?.some(rx => new RegExp(rx).test(currentUrl))) {
                             host.classList.add('nav-collapsed');
                             unhideBtn.style.display = 'block';
@@ -342,7 +347,7 @@
             return `
                 <div class="repo-card">
                     <div>
-                        <h3>${repo.fork ? '&#9282;' : '📂'} ${repo.name}</h3>
+                        <h3 class="js-ascii-repo">${repo.fork ? '&#9282;' : '📂'} ${repo.name}</h3>
                         <div class="repo-meta">
                             ${repo.fork ? '<span class="badge-fork">FORK</span>' : ''}
                             <span>${repo.language || 'txt'}</span>
@@ -357,6 +362,9 @@
                 </div>`;
         }));
         container.innerHTML = repoItems.join('');
+        
+        // Apply ASCII ripple to repo titles after injection
+        shadow.querySelectorAll('.js-ascii-repo').forEach(el => createASCIIShift(el));
     } catch(e) {
         shadow.getElementById('repo-inject').innerHTML = "<p style='padding:20px; color:red;'>Error connecting to GitHub.</p>";
     }
