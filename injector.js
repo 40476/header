@@ -1,7 +1,7 @@
 (async function() {
     const GITHUB_USERNAME = '40476';
     const CACHE_KEY = `mega_nav_cache_${GITHUB_USERNAME}`;
-    const CACHE_TTL = 5 * 60 * 1000; // 1 hour
+    const CACHE_TTL = 5 * 60 * 1000; 
     
     const isPrimary = window.location.hostname.includes('usr40k.dev');
     const baseHome = isPrimary ? 'https://usr40k.dev/' : 'https://40476.github.io/40476/';
@@ -9,10 +9,14 @@
     const currentUrl = window.location.href;
 
     // 1. CREATE SHADOW HOST
-    const host = document.createElement('div');
-    host.id = 'mega-nav-feature';
-    document.documentElement.appendChild(host);
-    const shadow = host.attachShadow({ mode: 'open' });
+    // We ensure the host itself doesn't interfere with page layout
+    let host = document.getElementById('mega-nav-feature');
+    if (!host) {
+        host = document.createElement('div');
+        host.id = 'mega-nav-feature';
+        document.body.prepend(host);
+    }
+    const shadow = host.shadowRoot || host.attachShadow({ mode: 'open' });
 
     const styles = `
         :host {
@@ -32,6 +36,7 @@
             z-index: 2147483647;
             font-family: ui-monospace, 'Cascadia Code', monospace;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none; /* Let clicks pass through the host container */
         }
 
         :host(.nav-hidden) { transform: translateY(-100%); }
@@ -49,26 +54,34 @@
             align-items: center;
             justify-content: center;
             padding: 0 20px;
+            pointer-events: auto; /* Re-enable clicks for the actual nav */
+            box-sizing: border-box;
+            width: 100%;
         }
 
         nav {
             display: flex;
-            gap: 10px;
+            gap: 5px;
             align-items: center;
             max-width: 1200px;
             width: 100%;
+            height: 100%;
         }
 
         .item {
             color: var(--nav-link);
             text-decoration: none;
             font-size: 13px;
-            padding: 8px 12px;
+            padding: 0 12px;
+            height: 100%;
+            display: flex;
+            align-items: center;
             transition: all 0.2s;
             cursor: pointer;
             white-space: nowrap;
             border: none;
             background: none;
+            text-transform: uppercase;
         }
 
         .item:hover, .item.active {
@@ -77,54 +90,58 @@
         }
 
         /* Dropdown Logic */
-        .dropdown-trigger { position: relative; display: flex; align-items: center; }
+        .dropdown-trigger { height: 100%; display: flex; align-items: center; }
         #repo-toggle { display: none; }
+        
         .mega-drop {
             position: absolute;
             top: var(--nav-height);
-            left: 50%;
-            transform: translateX(-50%) translateY(10px);
-            width: 90vw;
-            max-width: 1000px;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            width: 95vw;
+            max-width: 1160px;
             background: var(--nav-bg);
             border: 1px solid var(--nav-border);
+            border-top: none;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             padding: 20px;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 15px;
             opacity: 0;
             visibility: hidden;
             transition: all 0.2s ease;
             max-height: 80vh;
             overflow-y: auto;
+            box-sizing: border-box;
         }
 
         #repo-toggle:checked ~ .mega-drop {
             opacity: 1;
             visibility: visible;
-            transform: translateX(-50%) translateY(0);
+            transform: translateY(0);
         }
 
         /* Repo Cards */
         .card {
             background: var(--nav-card);
             border: 1px solid var(--nav-border);
-            padding: 15px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
+            box-sizing: border-box;
         }
 
-        .card h3 { margin: 0; font-size: 14px; color: var(--nav-heading); }
-        .meta { font-size: 10px; color: var(--nav-meta); display: flex; gap: 10px; }
-        .desc { font-size: 11px; color: var(--nav-link); line-height: 1.4; }
-        .card-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: auto; padding-top: 10px;}
+        .card h3 { margin: 0; font-size: 13px; color: var(--nav-heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .meta { font-size: 9px; color: var(--nav-meta); display: flex; gap: 8px; }
+        .desc { font-size: 11px; color: var(--nav-link); line-height: 1.3; margin: 0; height: 2.6em; overflow: hidden; }
+        .card-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: auto; padding-top: 8px; border-top: 1px solid var(--nav-border); }
         
         .btn-sm { font-size: 10px; text-decoration: none; color: var(--nav-link); }
         .btn-sm.primary { color: var(--nav-text); font-weight: bold; }
 
-        /* Scroll Unhide Indicator */
         #unhide-tab {
             position: absolute;
             bottom: -25px;
@@ -137,17 +154,17 @@
             cursor: pointer;
             border-radius: 0 0 4px 4px;
             display: none;
+            pointer-events: auto;
         }
 
         @media (max-width: 768px) {
-            nav { overflow-x: auto; padding-bottom: 5px; }
-            .mega-drop { width: 100vw; left: 0; transform: translateY(10px); }
-            #repo-toggle:checked ~ .mega-drop { transform: translateY(0); }
+            nav { overflow-x: auto; scrollbar-width: none; }
+            nav::-webkit-scrollbar { display: none; }
+            .mega-drop { width: 100vw; border-left: none; border-right: none; }
         }
 
-        /* Skeleton Animation */
-        .skeleton { height: 100px; background: var(--nav-border); opacity: 0.5; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 50% { opacity: 0.2; } }
+        .skeleton { height: 80px; background: var(--nav-border); opacity: 0.3; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 50% { opacity: 0.1; } }
     `;
 
     shadow.innerHTML = `
@@ -161,6 +178,7 @@
                     <input type="checkbox" id="repo-toggle">
                     <label for="repo-toggle" class="item">/REPOSITORIES/ ▾</label>
                     <div class="mega-drop" id="repo-content">
+                        <div class="skeleton"></div>
                         <div class="skeleton"></div>
                         <div class="skeleton"></div>
                         <div class="skeleton"></div>
@@ -196,6 +214,7 @@
     // 3. CACHE & FETCH LOGIC
     const renderRepos = (repos) => {
         const container = shadow.getElementById('repo-content');
+        if (!container) return;
         container.innerHTML = repos.map(repo => `
             <div class="card">
                 <h3>${repo.isFork ? '⎇' : '📂'} ${repo.name}</h3>
@@ -203,7 +222,7 @@
                     <span>${repo.lang}</span>
                     <span>${repo.updated}</span>
                 </div>
-                <p class="desc">${repo.desc}</p>
+                <p class="desc">${repo.desc || 'No description provided.'}</p>
                 <div class="card-actions">
                     <a href="${repo.githubUrl}" class="btn-sm" target="_blank">REPO</a>
                     <a href="${repo.liveUrl}" class="btn-sm primary" target="_blank">>> OPEN</a>
@@ -213,29 +232,27 @@
     };
 
     const processRepos = async () => {
-        // Try Cache First
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
-            const { data, ts } = JSON.parse(cached);
-            renderRepos(data);
-            if (Date.now() - ts < CACHE_TTL) return; // Cache is fresh
+            try {
+                const { data, ts } = JSON.parse(cached);
+                renderRepos(data);
+                if (Date.now() - ts < CACHE_TTL) return; 
+            } catch(e) { localStorage.removeItem(CACHE_KEY); }
         }
 
         try {
-            const res = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=15`);
+            const res = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=16`);
             const rawRepos = await res.json();
 
-            // Parallel fetching of headers
             const processedData = await Promise.all(rawRepos.map(async (repo) => {
                 let liveUrl = repo.homepage || repo.html_url;
                 
-                // Check for !header flag
                 if (repo.description?.includes('!header')) {
                     try {
                         const hRes = await fetch(`https://raw.githubusercontent.com/${repo.full_name}/${repo.default_branch}/header.json`);
                         if (hRes.ok) {
                             const config = await hRes.json();
-                            // Apply custom theme/autohide rules if we are currently ON this repo's page
                             const targetLink = config.links?.dev || config.links?.github;
                             if (targetLink && currentUrl.startsWith(targetLink)) {
                                 if (config.rules?.theme === 'light') host.classList.add('theme-light');
@@ -246,7 +263,7 @@
                             }
                             if (targetLink) liveUrl = targetLink;
                         }
-                    } catch (e) { /* silent fail for individual headers */ }
+                    } catch (e) {}
                 }
 
                 return {
@@ -263,13 +280,16 @@
             renderRepos(processedData);
             localStorage.setItem(CACHE_KEY, JSON.stringify({ data: processedData, ts: Date.now() }));
         } catch (err) {
-            console.error("MegaNav fetch failed", err);
+            const container = shadow.getElementById('repo-content');
+            if (container) container.innerHTML = `<p style="grid-column: 1/-1; color: red; font-size: 12px;">Failed to load repositories.</p>`;
         }
     };
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
-        if (!host.contains(e.target)) shadow.getElementById('repo-toggle').checked = false;
+        const toggle = shadow.getElementById('repo-toggle');
+        if (toggle && toggle.checked && !host.contains(e.target)) {
+            toggle.checked = false;
+        }
     });
 
     processRepos();
