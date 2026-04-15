@@ -1,12 +1,15 @@
 (async function() {
     const GITHUB_USERNAME = '40476';
-    const CACHE_KEY = `mega_nav_cache_${GITHUB_USERNAME}`;
-    const CACHE_TTL = 30 * 60 * 1000; // 30 mins
-    
+    const currentUrl = window.location.href;
     const isPrimary = window.location.hostname.includes('usr40k.dev');
+
+    // Link resolution based on environment
     const baseHome = isPrimary ? 'https://usr40k.dev/' : 'https://40476.github.io/40476/';
     const baseGizmos = isPrimary ? 'https://gizmos.usr40k.dev/' : 'https://40476.github.io/web-gizmos/';
-    const currentUrl = window.location.href;
+
+    // Detect locked layout for positioning
+    const isLockedLayout = window.getComputedStyle(document.body).overflow === 'hidden' || 
+                           window.getComputedStyle(document.documentElement).overflow === 'hidden';
 
     // 1. CREATE SHADOW HOST
     let host = document.getElementById('mega-nav-feature');
@@ -19,6 +22,7 @@
 
     const styles = `
         :host {
+            /* Default: Dark Theme */
             --nav-bg: #050505;
             --nav-text: #00ff00;
             --nav-link: #888;
@@ -27,36 +31,54 @@
             --nav-meta: #555;
             --nav-heading: #fff;
             --nav-height: 50px;
-            
-            position: fixed;
+
+            display: block;
+            position: ${isLockedLayout ? 'absolute' : 'fixed'};
             top: 0;
             left: 0;
             width: 100%;
             z-index: 2147483647;
             font-family: ui-monospace, 'Cascadia Code', monospace;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s ease;
             pointer-events: none;
         }
 
-        /* System Theme Support */
+        /* OS Auto-Theme Fallback */
         @media (prefers-color-scheme: light) {
             :host(:not(.theme-dark)) {
-                --nav-bg: #f8f9fa; --nav-text: #008800; --nav-link: #555;
-                --nav-border: #ccc; --nav-card: #ffffff; --nav-meta: #888; --nav-heading: #111;
+                --nav-bg: #f8f9fa;
+                --nav-text: #008800;
+                --nav-link: #555;
+                --nav-border: #ccc;
+                --nav-card: #ffffff;
+                --nav-meta: #888;
+                --nav-heading: #111;
             }
         }
 
-        :host(.nav-hidden) { transform: translateY(-100%); }
-        
-        /* Forced Theme Overrides */
+        /* Explicit Light Theme Override */
         :host(.theme-light) {
-            --nav-bg: #f8f9fa; --nav-text: #008800; --nav-link: #555;
-            --nav-border: #ccc; --nav-card: #ffffff; --nav-meta: #888; --nav-heading: #111;
+            --nav-bg: #f8f9fa !important;
+            --nav-text: #008800 !important;
+            --nav-link: #555 !important;
+            --nav-border: #ccc !important;
+            --nav-card: #ffffff !important;
+            --nav-meta: #888 !important;
+            --nav-heading: #111 !important;
         }
+
+        /* Explicit Dark Theme Override */
         :host(.theme-dark) {
-            --nav-bg: #050505; --nav-text: #00ff00; --nav-link: #888;
-            --nav-border: #222; --nav-card: #0a0a0a; --nav-meta: #555; --nav-heading: #fff;
+            --nav-bg: #050505 !important;
+            --nav-text: #00ff00 !important;
+            --nav-link: #888 !important;
+            --nav-border: #222 !important;
+            --nav-card: #0a0a0a !important;
+            --nav-meta: #555 !important;
+            --nav-heading: #fff !important;
         }
+
+        :host(.nav-collapsed) { transform: translateY(-100%) !important; }
 
         #wrap {
             background: var(--nav-bg);
@@ -66,7 +88,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0 20px;
+            padding: 0 15px;
             pointer-events: auto;
             box-sizing: border-box;
             width: 100%;
@@ -74,219 +96,233 @@
 
         nav {
             display: flex;
-            gap: 5px;
             align-items: center;
             max-width: 1200px;
             width: 100%;
             height: 100%;
+            position: relative;
         }
 
         .item {
             color: var(--nav-link);
             text-decoration: none;
             font-size: 13px;
-            padding: 0 12px;
+            padding: 0 15px;
             height: 100%;
             display: flex;
             align-items: center;
             transition: all 0.2s;
             cursor: pointer;
             white-space: nowrap;
-            border: none;
             background: none;
-            text-transform: uppercase;
+            border: none;
         }
 
-        .item:hover, .item.active {
+        .item:hover {
             color: var(--nav-text);
-            text-shadow: 0 0 8px var(--nav-text);
+            text-shadow: 0 0 5px var(--nav-text);
         }
 
-        #repo-toggle { display: none; }
+        #repo-check { display: none; }
         .mega-drop {
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(-10px);
             position: absolute;
             top: var(--nav-height);
-            left: 0; right: 0; margin: 0 auto;
-            width: 95vw; max-width: 1160px;
+            left: 0;
+            width: 100%;
             background: var(--nav-bg);
-            border: 1px solid var(--nav-border);
-            border-top: none;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border-bottom: 2px solid var(--nav-text);
             padding: 20px;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 15px;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.2s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            transition: all 0.3s ease;
             max-height: 80vh;
             overflow-y: auto;
             box-sizing: border-box;
+            z-index: 10;
         }
 
-        #repo-toggle:checked ~ .mega-drop {
-            opacity: 1; visibility: visible; transform: translateY(0);
+        #repo-check:checked ~ .mega-drop {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        .card {
-            background: var(--nav-card);
+        .repo-card {
             border: 1px solid var(--nav-border);
             padding: 12px;
-            display: flex; flex-direction: column; gap: 6px;
-            box-sizing: border-box;
+            background: var(--nav-card);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .card h3 { margin: 0; font-size: 13px; color: var(--nav-heading); overflow: hidden; text-overflow: ellipsis; }
-        .meta { font-size: 9px; color: var(--nav-meta); display: flex; gap: 8px; }
-        .desc { font-size: 11px; color: var(--nav-link); line-height: 1.3; margin: 0; height: 2.6em; overflow: hidden; }
-        .card-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: auto; padding-top: 8px; border-top: 1px solid var(--nav-border); }
-        .btn-sm { font-size: 10px; text-decoration: none; color: var(--nav-link); }
-        .btn-sm.primary { color: var(--nav-text); font-weight: bold; }
+        .repo-card h3 { margin: 0; font-size: 14px; color: var(--nav-heading); font-weight: bold; }
+        .repo-meta { font-size: 10px; color: var(--nav-meta); margin: 5px 0; display: flex; gap: 8px; align-items: center; }
+        .badge-fork { color: #ffaa00; border: 1px solid #ffaa00; padding: 1px 4px; border-radius: 3px; font-size: 9px; }
+        .repo-desc { font-size: 11px; color: var(--nav-meta); margin: 0; }
+        
+        .card-actions { text-align: right; margin-top: 10px; }
+        .btn-sm { font-size: 10px; text-decoration: none; color: var(--nav-link); margin-left: 10px; display: inline-block; }
+        .btn-sm.primary { color: var(--nav-text); font-weight: bold; font-size: 11px; }
 
-        #unhide-tab {
-            position: absolute; bottom: -25px; right: 20px;
-            background: var(--nav-bg); border: 1px solid var(--nav-border);
-            border-top: none; padding: 4px 12px; font-size: 10px;
-            cursor: pointer; border-radius: 0 0 4px 4px; display: none; pointer-events: auto;
+        #nav-unhide-btn {
+            display: none;
+            position: absolute;
+            bottom: -24px;
+            right: 20px;
+            background: var(--nav-bg);
+            color: var(--nav-text);
+            padding: 4px 12px;
+            cursor: pointer;
+            border: 1px solid var(--nav-border);
+            border-top: none;
+            font-size: 11px;
+            border-radius: 0 0 5px 5px;
+            pointer-events: auto;
         }
 
         @media (max-width: 768px) {
-            nav { overflow-x: auto; scrollbar-width: none; }
-            .mega-drop { width: 100vw; }
+            .mega-drop { grid-template-columns: 1fr; width: 100vw; left: -15px; }
+            nav { overflow-x: auto; }
         }
-
-        .skeleton { height: 80px; background: var(--nav-border); opacity: 0.3; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 50% { opacity: 0.1; } }
     `;
+
+    // Push down content if not locked
+    if (!isLockedLayout) {
+        const styleTag = document.createElement('style');
+        styleTag.textContent = `html { padding-top: 50px !important; box-sizing: border-box; }`;
+        document.head.appendChild(styleTag);
+    }
 
     shadow.innerHTML = `
         <style>${styles}</style>
         <div id="wrap">
+            <div id="nav-unhide-btn">▼ NAV</div>
             <nav>
-                <a href="${baseHome}" class="item ${currentUrl === baseHome ? 'active' : ''}">[ HOME ]</a>
-                <a href="${baseGizmos}" class="item ${currentUrl.includes('gizmos') ? 'active' : ''}">[ GIZMOS ]</a>
-                <div class="dropdown-trigger">
-                    <input type="checkbox" id="repo-toggle">
-                    <label for="repo-toggle" class="item">/REPOSITORIES/ ▾</label>
-                    <div class="mega-drop" id="repo-content">
-                        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+                <a href="${baseHome}" class="item">[ HOME ]</a>
+                <a href="${baseGizmos}" class="item">[ GIZMOS ]</a>
+                <div style="display: contents;">
+                    <input type="checkbox" id="repo-check">
+                    <label for="repo-check" class="item">/REPOSITORIES/ ▾</label>
+                    <div class="mega-drop" id="repo-inject">
+                        <p style="padding: 20px; color: var(--nav-meta);">Accessing GitHub API...</p>
                     </div>
                 </div>
                 <a href="https://matrix.to/#/@usr_40476:4d2.org" class="item" target="_blank">@MATRIX</a>
                 <a href="${baseHome}?page=links_and_contact" class="item">CONTACT</a>
             </nav>
-            <div id="unhide-tab">▼ NAV</div>
         </div>
     `;
 
-    // Scroll Logic
-    let lastScroll = 0;
-    window.addEventListener('scroll', () => {
-        const cur = window.pageYOffset;
-        if (cur <= 0) { host.classList.remove('nav-hidden'); return; }
-        if (cur > lastScroll && cur > 100) {
-            host.classList.add('nav-hidden');
-            shadow.getElementById('repo-toggle').checked = false;
-        } else if (cur < lastScroll) { host.classList.remove('nav-hidden'); }
-        lastScroll = cur;
-    }, { passive: true });
-
-    shadow.getElementById('unhide-tab').onclick = () => host.classList.remove('nav-hidden');
-
-    const renderRepos = (repos) => {
-        const container = shadow.getElementById('repo-content');
-        if (!container) return;
-        container.innerHTML = repos.map(repo => `
-            <div class="card">
-                <h3>${repo.isFork ? '⎇' : '📂'} ${repo.name}</h3>
-                <div class="meta"><span>${repo.lang}</span><span>${repo.updated}</span></div>
-                <p class="desc">${repo.desc || 'No description provided.'}</p>
-                <div class="card-actions">
-                    <a href="${repo.githubUrl}" class="btn-sm" target="_blank">REPO</a>
-                    <a href="${repo.liveUrl}" class="btn-sm primary" target="_blank">>> OPEN</a>
-                </div>
-            </div>
-        `).join('');
+    const unhideBtn = shadow.getElementById('nav-unhide-btn');
+    unhideBtn.onclick = () => {
+        const isCollapsed = host.classList.contains('nav-collapsed');
+        if (isCollapsed) {
+            host.classList.remove('nav-collapsed');
+            unhideBtn.innerText = '▲ HIDE';
+        } else {
+            host.classList.add('nav-collapsed');
+            unhideBtn.innerText = '▼ NAV';
+        }
     };
 
-    const processRepos = async () => {
-        const cached = localStorage.getItem(CACHE_KEY);
-        if (cached) {
-            try {
-                const { data, ts } = JSON.parse(cached);
-                renderRepos(data);
-                if (Date.now() - ts < CACHE_TTL) return; 
-            } catch(e) { localStorage.removeItem(CACHE_KEY); }
-        }
+    // Fetch and Process Logic
+    try {
+        const r = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=20`);
+        const data = await r.json();
+        const container = shadow.getElementById('repo-inject');
 
-        try {
-            const res = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=30`);
-            const rawRepos = await res.json();
+        const repoItems = await Promise.all(data.map(async repo => {
+            let finalLink = repo.homepage || repo.html_url;
 
-            const processedData = await Promise.all(rawRepos.map(async (repo) => {
-                let liveUrl = repo.homepage || repo.html_url;
-                
-                if (repo.description?.includes('!header')) {
-                    try {
-                        const hRes = await fetch(`https://raw.githubusercontent.com/${repo.full_name}/${repo.default_branch}/header.json`);
-                        if (hRes.ok) {
-                            let headerData = await hRes.json();
-                            
-                            // Extended Logic Restoration
-                            if (headerData.extendedConfigs?.some(rx => new RegExp(rx).test(currentUrl))) {
-                                const urlPart = currentUrl.split('?')[0];
-                                const currentDir = urlPart.endsWith('/') ? urlPart : urlPart.substring(0, urlPart.lastIndexOf('/') + 1);
+            if (repo.description && repo.description.includes('!header')) {
+                try {
+                    const lReq = await fetch(`https://raw.githubusercontent.com/${repo.full_name}/${repo.default_branch}/header.json`);
+                    if (lReq.ok) {
+                        let headerData = await lReq.json();
+
+                        // Extended Configs Logic
+                        if (headerData.extendedConfigs && Array.isArray(headerData.extendedConfigs)) {
+                            const shouldExtend = headerData.extendedConfigs.some(rx => {
+                                try { return new RegExp(rx).test(currentUrl); } catch(e) { return false; }
+                            });
+
+                            if (shouldExtend) {
+                                const urlWithoutQuery = currentUrl.split('?')[0];
+                                const currentDir = urlWithoutQuery.endsWith('/') ? urlWithoutQuery : urlWithoutQuery.substring(0, urlWithoutQuery.lastIndexOf('/') + 1);
                                 try {
                                     const extReq = await fetch(`${currentDir}header-extended.json`);
                                     if (extReq.ok) {
                                         const extData = await extReq.json();
                                         headerData = {
                                             ...headerData, ...extData,
-                                            links: { ...headerData.links, ...extData.links },
-                                            rules: { ...headerData.rules, ...extData.rules }
+                                            links: { ...(headerData.links || {}), ...(extData.links || {}) },
+                                            rules: { ...(headerData.rules || {}), ...(extData.rules || {}) }
                                         };
                                     }
                                 } catch(e) {}
                             }
+                        }
 
-                            // Link resolution
-                            if (headerData.links) {
-                                liveUrl = isPrimary ? (headerData.links.dev || headerData.links.github) : (headerData.links.github || headerData.links.dev);
+                        // Link Resolution
+                        if (headerData.links) {
+                            if (isPrimary && headerData.links.dev) finalLink = headerData.links.dev;
+                            else if (!isPrimary && headerData.links.github) finalLink = headerData.links.github;
+                            else if (headerData.links.dev) finalLink = headerData.links.dev;
+                            else if (headerData.links.github) finalLink = headerData.links.github;
+                        }
+
+                        // Rules Resolution (Theme & Autohide)
+                        const isCurrentSite = finalLink && currentUrl.startsWith(finalLink);
+                        if (headerData.rules) {
+                            // Autohide
+                            if (headerData.rules.autohideregex?.some(rx => new RegExp(rx).test(currentUrl))) {
+                                host.classList.add('nav-collapsed');
+                                unhideBtn.style.display = 'block';
+                                unhideBtn.innerText = '▼ NAV';
                             }
-
-                            // Rules resolution
-                            const isCurrentSite = liveUrl && currentUrl.startsWith(liveUrl);
-                            if (isCurrentSite && headerData.rules) {
-                                // Theme
+                            // Theme (only if current site match)
+                            if (isCurrentSite && headerData.rules.theme) {
                                 if (headerData.rules.theme === 'light') host.classList.add('theme-light');
                                 else if (headerData.rules.theme === 'dark') host.classList.add('theme-dark');
-                                // Autohide
-                                if (headerData.rules.autohideregex?.some(rx => new RegExp(rx).test(currentUrl))) {
-                                    host.classList.add('nav-hidden');
-                                    shadow.getElementById('unhide-tab').style.display = 'block';
-                                }
                             }
                         }
-                    } catch (e) {}
-                }
+                    }
+                } catch(e) {}
+            }
 
-                return {
-                    name: repo.name, isFork: repo.fork, lang: repo.language || 'txt',
-                    updated: new Date(repo.updated_at).toLocaleDateString(),
-                    desc: (repo.description || '').replace('!header', '').trim(),
-                    githubUrl: repo.html_url, liveUrl: liveUrl
-                };
-            }));
+            return `
+                <div class="repo-card">
+                    <div>
+                        <h3>${repo.fork ? '&#9282;' : '📂'} ${repo.name}</h3>
+                        <div class="repo-meta">
+                            ${repo.fork ? '<span class="badge-fork">FORK</span>' : ''}
+                            <span>${repo.language || 'txt'}</span>
+                            <span>${new Date(repo.updated_at).toLocaleDateString()}</span>
+                        </div>
+                        <p class="repo-desc">${repo.description ? repo.description.replace('!header', '').trim() : ''}</p>
+                    </div>
+                    <div class="card-actions">
+                        <a href="${repo.html_url}" target="_blank" class="btn-sm">REPO</a>
+                        <a href="${finalLink}" target="_blank" class="btn-sm primary">>> OPEN</a>
+                    </div>
+                </div>`;
+        }));
 
-            renderRepos(processedData);
-            localStorage.setItem(CACHE_KEY, JSON.stringify({ data: processedData, ts: Date.now() }));
-        } catch (err) { /* silent fail */ }
-    };
+        container.innerHTML = repoItems.join('');
+    } catch(e) {
+        shadow.getElementById('repo-inject').innerHTML = "<p style='padding:20px; color:red;'>Error connecting to GitHub.</p>";
+    }
 
+    // Close dropdown on click outside
     document.addEventListener('click', (e) => {
-        const toggle = shadow.getElementById('repo-toggle');
-        if (toggle?.checked && !host.contains(e.target)) toggle.checked = false;
+        const check = shadow.getElementById('repo-check');
+        if (check?.checked && !host.contains(e.target)) check.checked = false;
     });
 
-    processRepos();
 })();
