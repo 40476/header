@@ -30,7 +30,7 @@
         let origW = null;
 
         const cfg = {
-            dur: 600,
+            dur: 1200,
             chars: '.,·-─~+:;=*π""┐┌┘┴┬╗╔╝╚╬╠╣╩╦║░▒▓█▄▀▌▐■!?&#$@0123456789*',
             preserveSpaces: true,
             spread: 0.3,
