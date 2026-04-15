@@ -104,17 +104,25 @@
 
         const stop = () => {
             el.textContent = origTxt;
-            if (origW !== null) { el.style.width = ""; origW = null; }
+            if (origW !== null) { 
+                el.style.width = ""; 
+                el.style.display = "";
+                el.style.lineHeight = "";
+                origW = null; 
+            }
             isAnim = false;
         };
 
         const start = () => {
             if (isAnim) return;
             if (origW === null) {
-                // Use ceil to prevent right-side blank space/rounding issues
-                origW = Math.ceil(el.getBoundingClientRect().width);
+                const rect = el.getBoundingClientRect();
+                origW = Math.ceil(rect.width);
                 el.style.width = `${origW}px`;
                 el.style.display = 'inline-block';
+                el.style.verticalAlign = 'middle';
+                // Enforce current line height to prevent vertical jitter
+                el.style.lineHeight = `${rect.height}px`;
             }
             isAnim = true;
             const animate = () => {
@@ -224,6 +232,7 @@
             font-family: inherit;
             position: relative;
             box-sizing: border-box;
+            vertical-align: middle;
         }
 
         .item:hover { color: var(--nav-text); }
@@ -254,7 +263,7 @@
         .repo-card:hover { border-color: var(--nav-text); }
         .repo-card h3 { 
             margin: 0; font-size: 14px; color: var(--nav-heading); font-weight: bold; 
-            cursor: pointer; width: fit-content;
+            cursor: pointer; width: fit-content; line-height: 1.4;
         }
         .repo-meta { font-size: 10px; color: var(--nav-meta); margin: 5px 0; display: flex; gap: 8px; align-items: center; }
         .badge-fork { color: #ffaa00; border: 1px solid #ffaa00; padding: 1px 4px; border-radius: 3px; font-size: 9px; }
@@ -312,7 +321,6 @@
         </div>
     `;
 
-    // Apply ASCII ripple to navigation items
     shadow.querySelectorAll('.js-ascii').forEach(el => createASCIIShift(el));
 
     const unhideBtn = shadow.getElementById('nav-unhide-btn');
@@ -362,8 +370,6 @@
                 </div>`;
         }));
         container.innerHTML = repoItems.join('');
-        
-        // Apply ASCII ripple to repo titles after injection
         shadow.querySelectorAll('.js-ascii-repo').forEach(el => createASCIIShift(el));
     } catch(e) {
         shadow.getElementById('repo-inject').innerHTML = "<p style='padding:20px; color:red;'>Error connecting to GitHub.</p>";
