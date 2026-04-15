@@ -211,7 +211,12 @@
         }
 
         @media (max-width: 850px) {
-            .mobile-label { display: flex; }
+            .mobile-label { 
+                display: flex; 
+                width: 100%; 
+                justify-content: flex-start;
+                box-sizing: border-box;
+            }
             .nav-links {
                 display: none;
                 flex-direction: column;
@@ -219,13 +224,16 @@
                 width: 100%;
                 background: var(--nav-bg);
                 border-top: 1px solid var(--nav-border);
+                align-items: flex-start;
             }
             #mobile-toggle:checked ~ .nav-links { display: flex; }
             .item {
                 width: 100%;
-                height: 44px;
+                height: 50px;
                 padding: 0 20px;
                 border-bottom: 1px solid var(--nav-border);
+                justify-content: flex-start;
+                box-sizing: border-box;
             }
             .mega-drop {
                 position: relative;
@@ -238,9 +246,11 @@
                 display: none;
                 visibility: visible;
                 max-height: none;
+                padding: 10px;
             }
             #repo-check:checked ~ .mega-drop { display: grid; }
             #wrap { height: auto; }
+            nav { height: auto; padding: 0; }
         }
     `;
 
