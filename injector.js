@@ -84,11 +84,12 @@
             background: var(--nav-bg);
             color: var(--nav-text);
             border-bottom: 1px solid var(--nav-border);
-            height: var(--nav-height);
+            min-height: var(--nav-height);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 0 15px;
+            padding: 0;
             pointer-events: auto;
             box-sizing: border-box;
             width: 100%;
@@ -99,8 +100,17 @@
             align-items: center;
             max-width: 1200px;
             width: 100%;
-            height: 100%;
+            height: var(--nav-height);
             position: relative;
+            padding: 0 15px;
+            box-sizing: border-box;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            width: 100%;
         }
 
         .item {
@@ -116,11 +126,25 @@
             white-space: nowrap;
             background: none;
             border: none;
+            font-family: inherit;
         }
 
         .item:hover {
             color: var(--nav-text);
             text-shadow: 0 0 5px var(--nav-text);
+        }
+
+        /* Mobile Menu Toggle */
+        #mobile-toggle { display: none; }
+        .mobile-label {
+            display: none;
+            font-size: 14px;
+            color: var(--nav-text);
+            padding: 0 15px;
+            cursor: pointer;
+            height: var(--nav-height);
+            align-items: center;
+            font-weight: bold;
         }
 
         #repo-check { display: none; }
@@ -186,9 +210,37 @@
             pointer-events: auto;
         }
 
-        @media (max-width: 768px) {
-            .mega-drop { grid-template-columns: 1fr; width: 100vw; left: -15px; }
-            nav { overflow-x: auto; }
+        @media (max-width: 850px) {
+            .mobile-label { display: flex; }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                height: auto;
+                width: 100%;
+                background: var(--nav-bg);
+                border-top: 1px solid var(--nav-border);
+            }
+            #mobile-toggle:checked ~ .nav-links { display: flex; }
+            .item {
+                width: 100%;
+                height: 44px;
+                padding: 0 20px;
+                border-bottom: 1px solid var(--nav-border);
+            }
+            .mega-drop {
+                position: relative;
+                top: 0;
+                grid-template-columns: 1fr;
+                box-shadow: none;
+                border-bottom: 1px solid var(--nav-border);
+                transform: none;
+                opacity: 1;
+                display: none;
+                visibility: visible;
+                max-height: none;
+            }
+            #repo-check:checked ~ .mega-drop { display: grid; }
+            #wrap { height: auto; }
         }
     `;
 
@@ -204,17 +256,22 @@
         <div id="wrap">
             <div id="nav-unhide-btn">▼ NAV</div>
             <nav>
-                <a href="${baseHome}" class="item">[ HOME ]</a>
-                <a href="${baseGizmos}" class="item">[ GIZMOS ]</a>
-                <div style="display: contents;">
-                    <input type="checkbox" id="repo-check">
-                    <label for="repo-check" class="item">/REPOSITORIES/ ▾</label>
-                    <div class="mega-drop" id="repo-inject">
-                        <p style="padding: 20px; color: var(--nav-meta);">Accessing GitHub API...</p>
+                <input type="checkbox" id="mobile-toggle">
+                <label for="mobile-toggle" class="mobile-label">☰ [ MENU ]</label>
+                
+                <div class="nav-links">
+                    <a href="${baseHome}" class="item">[ HOME ]</a>
+                    <a href="${baseGizmos}" class="item">[ GIZMOS ]</a>
+                    <div style="display: contents;">
+                        <input type="checkbox" id="repo-check">
+                        <label for="repo-check" class="item">/REPOSITORIES/ ▾</label>
+                        <div class="mega-drop" id="repo-inject">
+                            <p style="padding: 20px; color: var(--nav-meta);">Accessing GitHub API...</p>
+                        </div>
                     </div>
+                    <a href="https://matrix.to/#/@usr_40476:4d2.org" class="item" target="_blank">@MATRIX</a>
+                    <a href="${baseHome}?page=links_and_contact" class="item">CONTACT</a>
                 </div>
-                <a href="https://matrix.to/#/@usr_40476:4d2.org" class="item" target="_blank">@MATRIX</a>
-                <a href="${baseHome}?page=links_and_contact" class="item">CONTACT</a>
             </nav>
         </div>
     `;
@@ -319,10 +376,14 @@
         shadow.getElementById('repo-inject').innerHTML = "<p style='padding:20px; color:red;'>Error connecting to GitHub.</p>";
     }
 
-    // Close dropdown on click outside
+    // Close dropdowns on click outside
     document.addEventListener('click', (e) => {
-        const check = shadow.getElementById('repo-check');
-        if (check?.checked && !host.contains(e.target)) check.checked = false;
+        const repoCheck = shadow.getElementById('repo-check');
+        const mobileToggle = shadow.getElementById('mobile-toggle');
+        if (!host.contains(e.target)) {
+            if (repoCheck) repoCheck.checked = false;
+            if (mobileToggle) mobileToggle.checked = false;
+        }
     });
 
 })();
