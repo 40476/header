@@ -216,11 +216,18 @@
                 top: 0;
                 left: 0;
             }
+            nav {
+                flex-direction: column; /* Force links below toggle */
+                height: auto;
+                padding: 0;
+                align-items: stretch;
+            }
             .mobile-label { 
                 display: flex; 
                 width: 100%; 
                 justify-content: flex-start;
                 box-sizing: border-box;
+                border-bottom: 1px solid var(--nav-border);
             }
             .nav-links {
                 display: none;
@@ -228,7 +235,6 @@
                 height: auto;
                 width: 100%;
                 background: var(--nav-bg);
-                border-top: 1px solid var(--nav-border);
                 align-items: stretch;
             }
             #mobile-toggle:checked ~ .nav-links { 
@@ -243,27 +249,26 @@
                 box-sizing: border-box;
             }
             .mega-drop {
-                position: fixed;
-                top: auto;
-                bottom: 0;
-                left: 0;
+                position: relative; /* Remove gap by putting it in flow or direct anchor */
+                top: 0;
+                bottom: auto;
                 width: 100%;
                 height: auto;
-                max-height: calc(100vh - 300px); /* Fill remaining distance */
+                max-height: calc(100vh - 350px);
                 grid-template-columns: 1fr;
                 box-shadow: none;
-                border-top: 1px solid var(--nav-border);
-                border-bottom: none;
+                border-top: none;
+                border-bottom: 2px solid var(--nav-text);
                 transform: none;
                 opacity: 1;
                 display: none;
                 visibility: visible;
                 overflow-y: auto;
                 padding: 10px;
+                z-index: 100;
             }
             #repo-check:checked ~ .mega-drop { display: grid; }
             #wrap { height: auto; min-height: var(--nav-height); }
-            nav { height: auto; padding: 0; }
         }
     `;
 
