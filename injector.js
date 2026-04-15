@@ -346,8 +346,13 @@
                             unhideBtn.style.display = 'block';
                             if (!isLockedLayout) document.documentElement.style.paddingTop = '0px';
                         }
-                        if (finalLink && currentUrl.startsWith(finalLink) && headerData.rules?.theme) {
-                            host.classList.add(headerData.rules.theme === 'light' ? 'theme-light' : 'theme-dark');
+                        if (headerData.rules?.theme) {
+                            // Remove both possible theme classes to ensure a clean override
+                            host.classList.remove('theme-light', 'theme-dark');
+                            
+                            // Apply the theme from JSON
+                            const newTheme = headerData.rules.theme === 'light' ? 'theme-light' : 'theme-dark';
+                            host.classList.add(newTheme);
                         }
                     }
                 } catch(e) {}
