@@ -148,12 +148,8 @@
     }
     const shadow = host.shadowRoot || host.attachShadow({ mode: 'open' });
 
-    // Improved Theme Detection Logic
     const initializeTheme = () => {
-        // Clear previous classes to start fresh
         host.classList.remove('theme-dark', 'theme-light');
-        
-        // Check if the current page has a specific theme set via class on body or html
         const bodyTheme = document.body.getAttribute('data-theme') || document.documentElement.getAttribute('data-theme');
         const hasDarkClass = document.body.classList.contains('dark-theme') || document.documentElement.classList.contains('dark-theme');
         const hasLightClass = document.body.classList.contains('light-theme') || document.documentElement.classList.contains('light-theme');
@@ -163,7 +159,6 @@
         } else if (bodyTheme === 'light' || hasLightClass) {
             host.classList.add('theme-light');
         }
-        // If neither, it follows the @media (prefers-color-scheme) in the CSS automatically
     };
 
     const styles = `
@@ -188,7 +183,6 @@
             pointer-events: none;
         }
 
-        /* Default "Auto" behavior using system preference */
         @media (prefers-color-scheme: light) {
             :host {
                 --nav-bg: #f8f9fa; --nav-text: #008800; --nav-link: #555;
@@ -196,7 +190,6 @@
             }
         }
 
-        /* Explicit Overrides */
         :host(.theme-light) {
             --nav-bg: #f8f9fa !important; --nav-text: #008800 !important; --nav-link: #555 !important;
             --nav-border: #ccc !important; --nav-card: #ffffff !important; --nav-meta: #888 !important; --nav-heading: #111 !important;
@@ -265,11 +258,21 @@
         }
 
         #repo-check { display: none; }
+        
+        /* Fixed: Replaced display:contents wrapper with a relative container for better Gecko rendering */
+        .drop-trigger { height: 100%; display: flex; align-items: center; }
+
         .mega-drop {
             visibility: hidden; opacity: 0; transform: translateY(-10px);
             position: absolute; top: var(--nav-height); left: 0; width: 100%;
             background: var(--nav-bg); border-bottom: 2px solid var(--nav-text);
-            padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            padding: 20px; 
+            
+            /* Enhanced Grid behavior for Firefox */
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-auto-rows: 1fr; /* Force cards in a row to match highest card */
+            
             gap: 15px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             max-height: 80vh; overflow-y: auto; box-sizing: border-box; z-index: 10;
         }
@@ -277,21 +280,40 @@
         #repo-check:checked ~ .mega-drop { visibility: visible; opacity: 1; transform: translateY(0); }
 
         .repo-card {
-            border: 1px solid var(--nav-border); padding: 16px; background: var(--nav-card);
-            display: flex; flex-direction: column; justify-content: space-between; transition: border-color 0.2s;
-            overflow: hidden; box-sizing: border-box; 
-            min-height: 120px; height: auto; /* Allow auto-scaling */
-            width: 100%;
+            border: 1px solid var(--nav-border); 
+            padding: 16px; 
+            background: var(--nav-card);
+            display: flex; 
+            flex-direction: column; 
+            transition: border-color 0.2s;
+            overflow: hidden; 
+            box-sizing: border-box; 
+            height: 100%; /* Fill the grid row height */
+            min-height: 140px; 
         }
+        
         .repo-card:hover { border-color: var(--nav-text); }
+        
+        /* Flex wrapper to push actions to bottom in Gecko */
+        .card-content { flex: 1 0 auto; display: flex; flex-direction: column; min-height: 0; }
+
         .repo-card h3 { 
             margin: 0; font-size: 14px; color: var(--nav-heading); font-weight: bold; 
             cursor: pointer; width: fit-content; line-height: 1.4;
         }
         .repo-meta { font-size: 10px; color: var(--nav-meta); margin: 8px 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
         .badge-fork { color: #ffaa00; border: 1px solid #ffaa00; padding: 1px 4px; border-radius: 3px; font-size: 9px; }
-        .repo-desc { font-size: 11px; color: var(--nav-meta); margin: 0; line-height: 1.5; overflow-wrap: break-word; flex-grow: 1; }
-        .card-actions { text-align: right; margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); }
+        
+        .repo-desc { 
+            font-size: 11px; color: var(--nav-meta); margin: 0; line-height: 1.5; 
+            overflow-wrap: break-word; flex: 1 1 auto;
+        }
+        
+        .card-actions { 
+            text-align: right; margin-top: 15px; padding-top: 10px; 
+            border-top: 1px solid rgba(255,255,255,0.05);
+            flex-shrink: 0;
+        }
         .btn-sm { font-size: 10px; text-decoration: none; color: var(--nav-link); margin-left: 10px; }
         .btn-sm.primary { color: var(--nav-text); font-weight: bold; }
 
@@ -329,6 +351,7 @@
                 position: relative; 
                 top: 0; 
                 grid-template-columns: 1fr; 
+                grid-auto-rows: auto;
                 display: none; 
                 padding: 15px; 
                 transform: none; 
@@ -341,8 +364,8 @@
             #repo-check:checked ~ .mega-drop { display: grid; }
             
             .repo-card { 
-                height: auto !important; 
-                min-height: 100px; 
+                height: auto; 
+                min-height: 120px; 
                 margin-bottom: 10px;
             }
         }
@@ -364,7 +387,7 @@
                 <div class="nav-links">
                     <a href="${baseHome}" class="item js-ascii">[ HOME ]</a>
                     <a href="${baseGizmos}" class="item js-ascii">[ GIZMOS ]</a>
-                    <div style="display: contents;">
+                    <div class="drop-trigger">
                         <input type="checkbox" id="repo-check">
                         <label for="repo-check" class="item js-ascii">/REPOSITORIES/ ▾</label>
                         <div class="mega-drop" id="repo-inject">
@@ -396,7 +419,7 @@
             let finalLink = repo.homepage || repo.html_url;
             return `
                 <div class="repo-card">
-                    <div style="display: flex; flex-direction: column; flex-grow: 1;">
+                    <div class="card-content">
                         <h3 class="js-ascii-repo">${repo.fork ? '&#9282;' : '📂'} ${repo.name}</h3>
                         <div class="repo-meta">
                             ${repo.fork ? '<span class="badge-fork">FORK</span>' : ''}
