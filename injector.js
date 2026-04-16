@@ -357,7 +357,7 @@
     </div>
     `;
 
-    html.querySelectorAll('.mega-nav-item').forEach(el => createASCIIShift(el));
+    document.body.querySelectorAll('.mega-nav-item').forEach(el => createASCIIShift(el));
     
     document.body.insertAdjacentHTML('afterbegin', html);
     
