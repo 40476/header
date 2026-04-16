@@ -285,7 +285,7 @@
             .mobile-label { display: flex; border-bottom: 1px solid var(--nav-border); }
             .nav-links { display: none; flex-direction: column; height: auto; background: var(--nav-bg); }
             #mobile-toggle:checked ~ .nav-links { display: flex; }
-            .item { width: 100%; height: 50px; border-bottom: 1px solid var(--nav-border); justify-content: flex-start; padding: 0 20px; }
+            .item { width: 100%; border-bottom: 1px solid var(--nav-border); justify-content: flex-start; padding: 0 20px; }
             .mega-drop { position: relative; top: 0; grid-template-columns: 1fr; display: none; padding: 10px; transform: none; }
             #repo-check:checked ~ .mega-drop { display: grid; }
         }
@@ -375,7 +375,7 @@
                 </div>`;
         }));
         container.innerHTML = repoItems.join('');
-        shadow.querySelectorAll('.js-ascii-repo').forEach(el => createASCIIShift(el));
+        // shadow.querySelectorAll('.js-ascii-repo').forEach(el => createASCIIShift(el));
     } catch(e) {
         shadow.getElementById('repo-inject').innerHTML = "<p style='padding:20px; color:red;'>Error connecting to GitHub.</p>";
     }
