@@ -48,6 +48,20 @@
         --nav-heading: #fff !important;
     }
 
+    /* Optional: OS Auto-Theme Fallback */
+    @media (prefers-color-scheme: light) {
+        #mega-nav-wrap:not(.theme-dark),
+        :not(.theme-dark) > #mega-nav-wrap {
+            --nav-bg: #f8f9fa;
+            --nav-text: #008800;
+            --nav-link: #555;
+            --nav-border: #ccc;
+            --nav-card: #ffffff;
+            --nav-meta: #888;
+            --nav-heading: #111;
+        }
+    }
+
     /* FORCE RESET ON LABELS TO BLOCK APP CSS BLEED */
     #mega-nav-wrap label {
         margin: 0 !important;
@@ -60,6 +74,7 @@
         all: initial; 
         font-family: ui-monospace, 'Cascadia Code', monospace; 
         display: block; 
+        /* CHANGED TO FIXED: This takes it out of the app body's flexbox flow */
         position: ${isLockedLayout ? 'absolute' : 'fixed'}; 
         top: 0; 
         left: 0;
@@ -72,8 +87,9 @@
         transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease !important;
     }
 
+    /* Autohide Slide-up Class */
     #mega-nav-wrap.nav-collapsed {
-        transform: translateY(-50px) !important; /* Slide just out of view */
+        transform: translateY(-100%) !important;
     }
 
     #mega-nav-wrap * { box-sizing: border-box !important; }
@@ -90,6 +106,7 @@
         width: auto !important;
         border: none !important;
         flex-direction: row !important;
+        transform: none !important;
     }
     
     #mega-nav-wrap .mega-nav-item { 
@@ -103,6 +120,7 @@
         background: none !important; 
         white-space: nowrap !important;
         display: inline-block !important;
+        width: auto !important;
         line-height: normal !important;
         text-transform: none !important;
     }
@@ -114,28 +132,22 @@
     
     #repo-check, #mobile-check { display: none !important; }
     
-    /* FIX: Repository Dropdown Layout */
+    /* Animated Dropdown Styles */
     #mega-nav-wrap .mega-drop {
         visibility: hidden;
         opacity: 0;
         transform: translateY(-10px);
-        position: fixed; /* Fixed to viewport prevents breaking container flow */
-        top: 50px; 
-        left: 0; 
-        width: 100vw;
+        position: absolute; top: 50px; left: 0; width: 100%;
         background: var(--nav-bg) !important; 
         border-bottom: 2px solid var(--nav-text) !important; 
         padding: 20px !important;
         box-sizing: border-box !important; 
         display: grid; 
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-        gap: 15px;
-        max-height: calc(100vh - 50px); 
-        overflow-y: auto; 
-        box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease !important;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;
+        max-height: 80vh; overflow-y: auto; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease !important;
         pointer-events: none;
-        z-index: 9999998;
     }
     
     #mega-nav-wrap #repo-check:checked ~ .mega-drop { 
@@ -152,10 +164,7 @@
         display: flex !important; 
         flex-direction: column !important; 
         justify-content: space-between !important; 
-        transition: border-color 0.3s ease; 
-    }
-    #mega-nav-wrap .repo-card:hover {
-        border-color: var(--nav-text) !important;
+        transition: background-color 0.3s ease; 
     }
     #mega-nav-wrap .repo-card h3 { margin: 0 !important; font-size: 14px !important; color: var(--nav-heading) !important; font-family: inherit !important; font-weight: bold !important;}
     #mega-nav-wrap .repo-meta { font-size: 10px !important; color: var(--nav-meta) !important; margin: 5px 0 !important; display: flex !important; gap: 8px !important; align-items: center !important; }
@@ -164,6 +173,7 @@
     #mega-nav-wrap .mobile-label { display: none; font-size: 20px; color: var(--nav-text) !important; padding: 10px; cursor: pointer; }
 
     #nav-unhide-btn {
+        display: none; 
         position: absolute; 
         bottom: -24px;
         right: 20px; 
@@ -178,18 +188,28 @@
         font-size: 11px;
         border-radius: 0 0 5px 5px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        display: none;
+        transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    /* PUSH HTML DOWN */
+    /* PUSH HTML DOWN INSTEAD OF OVERWRITING BODY PADDING */
     ${!isLockedLayout ? 'html { padding-top: 50px !important; box-sizing: border-box; }' : ''}
 
     @media (max-width: 768px) {
         #mega-nav-wrap .mobile-label { display: block !important; }
         #mega-nav-wrap .nav-inner { height: auto !important; flex-direction: column !important; align-items: flex-start !important; display: none !important; padding-bottom: 10px !important; }
         #mega-nav-wrap #mobile-check:checked ~ .nav-inner { display: flex !important; }
-        #mega-nav-wrap .mega-nav-item { width: 100% !important; border-bottom: 1px solid var(--nav-border) !important; }
-        #mega-nav-wrap .mega-drop { position: relative !important; top: 0 !important; width: 100% !important; max-height: none !important; box-shadow: none !important; }
+        #mega-nav-wrap .mega-nav-item { width: 100% !important; box-sizing: border-box !important; border-bottom: 1px solid var(--nav-border) !important; }
+        
+        #mega-nav-wrap .mega-drop { 
+            position: relative !important; 
+            top: 0 !important; 
+            width: 100% !important; 
+            margin-left: 0 !important; 
+            display: none !important; 
+        }
+        #mega-nav-wrap #repo-check:checked ~ .mega-drop { 
+            display: grid !important; 
+        }
     }
     `;
 
@@ -240,21 +260,18 @@
         const repoItems = await Promise.all(data.map(async repo => {
             let finalLink = repo.homepage || repo.html_url;
 
-            // Header logic and Extension check
             if (repo.description && repo.description.includes('!header')) {
                 try {
                     const lReq = await fetch(`https://raw.githubusercontent.com/${repo.full_name}/${repo.default_branch}/header.json`);
                     if (lReq.ok) {
                         let headerData = await lReq.json(); 
                         
-                        // Check for extendedConfigs requirement
                         if (headerData.extendedConfigs && Array.isArray(headerData.extendedConfigs)) {
                             const shouldExtend = headerData.extendedConfigs.some(rx => {
                                 try { return new RegExp(rx).test(currentUrl); } catch(e) { return false; }
                             });
 
                             if (shouldExtend) {
-                                // Resolve path for header-extended.json relative to current URL
                                 const urlWithoutQuery = currentUrl.split('?')[0];
                                 const currentDir = urlWithoutQuery.endsWith('/') 
                                     ? urlWithoutQuery 
@@ -264,7 +281,6 @@
                                     const extReq = await fetch(`${currentDir}header-extended.json`);
                                     if (extReq.ok) {
                                         const extData = await extReq.json();
-                                        // Deep merge links and rules
                                         headerData = {
                                             ...headerData,
                                             ...extData,
@@ -278,51 +294,54 @@
                             }
                         }
 
-                        // Apply derived links
                         if (headerData.links) {
                             if (isPrimary && headerData.links.dev) {
+                                finalLink = headerData.links.dev; 
+                            } else if (!isPrimary && headerData.links.github) {
+                                finalLink = headerData.links.github; 
+                            } else if (headerData.links.dev) {
                                 finalLink = headerData.links.dev; 
                             } else if (headerData.links.github) {
                                 finalLink = headerData.links.github; 
                             }
                         }
 
-                        // Apply rules (theme, autohide)
                         if (headerData.rules) {
-                            // Autohide logic
                             if (headerData.rules.autohideregex && Array.isArray(headerData.rules.autohideregex)) {
-                                const isCurrentSite = finalLink && currentUrl.startsWith(finalLink);
                                 const shouldHide = headerData.rules.autohideregex.some(rx => {
                                     try { return new RegExp(rx).test(currentUrl); } catch(e) { return false; }
                                 });
                                 
-                                if (shouldHide && isCurrentSite) {
+                                if (shouldHide) {
                                     navWrap.classList.add('nav-collapsed');
                                     unhideBtn.style.display = 'block';
                                     unhideBtn.innerText = '▼ NAV'; 
                                 }
                             }
 
-                            // Theme logic
                             if (headerData.rules.theme && finalLink && currentUrl.startsWith(finalLink)) {
-                                const applyTheme = (t) => {
-                                    document.documentElement.classList.remove('theme-light', 'theme-dark');
-                                    navWrap.classList.remove('theme-light', 'theme-dark');
-                                    document.documentElement.classList.add(`theme-${t}`);
-                                    navWrap.classList.add(`theme-${t}`);
-                                    document.documentElement.setAttribute('data-theme', t);
-                                };
-
-                                if (headerData.rules.theme === 'light') applyTheme('light');
-                                else if (headerData.rules.theme === 'dark') applyTheme('dark');
-                                else if (headerData.rules.theme === 'auto') {
-                                    const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-                                    applyTheme(prefersLight ? 'light' : 'dark');
+                                if (headerData.rules.theme === 'light') {
+                                    document.documentElement.classList.add('theme-light');
+                                    navWrap.classList.add('theme-light');
+                                    document.documentElement.classList.remove('theme-dark');
+                                    navWrap.classList.remove('theme-dark');
+                                } else if (headerData.rules.theme === 'dark') {
+                                    document.documentElement.classList.add('theme-dark');
+                                    navWrap.classList.add('theme-dark');
+                                    document.documentElement.classList.remove('theme-light');
+                                    navWrap.classList.remove('theme-light');
+                                } else if (headerData.rules.theme === 'auto') {
+                                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                                        document.documentElement.classList.add('theme-light');
+                                        navWrap.classList.add('theme-light');
+                                        document.documentElement.classList.remove('theme-dark');
+                                        navWrap.classList.remove('theme-dark');
+                                    }
                                 }
                             }
                         }
                     }
-                } catch(e) { console.error('Error in header logic for', repo.name, e); }
+                } catch(e) { console.error('Error parsing header.json for', repo.name, e); }
             }
 
             return `
