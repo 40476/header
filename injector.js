@@ -291,7 +291,7 @@
                 flex-direction: column; 
                 height: auto; 
                 width: 100%; 
-                align-items: stretch; /* Fixes children height compression */
+                align-items: stretch;
             }
             #mobile-toggle:checked ~ .nav-links { display: flex; }
             
@@ -304,7 +304,6 @@
                 flex-shrink: 0;
             }
 
-            /* The mega drop wrapper logic on mobile */
             .mega-drop { 
                 position: relative; 
                 top: 0; 
@@ -313,13 +312,14 @@
                 padding: 15px; 
                 transform: none; 
                 opacity: 1; 
-                visibility: visible; 
-                max-height: none; 
-                height: auto !important; /* Forces auto height expansion */
+                visibility: visible;
+                /* Calc height to reach bottom of screen: 100vh minus the height of open nav parts */
+                max-height: calc(100vh - 300px); 
+                overflow-y: auto;
+                height: auto;
             }
             #repo-check:checked ~ .mega-drop { display: grid; }
             
-            /* Ensure the cards inside the expanded menu don't collapse */
             .repo-card { 
                 height: auto !important; 
                 min-height: 100px; 
