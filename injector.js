@@ -357,8 +357,10 @@
     </div>
     `;
 
+    html.querySelectorAll('.mega-nav-item').forEach(el => createASCIIShift(el));
+    
     document.body.insertAdjacentHTML('afterbegin', html);
-    shadow.querySelectorAll('.mega-nav-item').forEach(el => createASCIIShift(el));
+    
     
     const navWrap = document.getElementById('mega-nav-wrap');
     const unhideBtn = document.getElementById('nav-unhide-btn');
