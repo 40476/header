@@ -1,6 +1,5 @@
 (async function() {
     const GITHUB_USERNAME = '40476';
-    const currentUrl = window.location.href;
     const isPrimary = window.location.hostname.includes('usr40k.dev');
 
     // Ensure viewport meta tag exists for mobile scaling
@@ -149,6 +148,24 @@
     }
     const shadow = host.shadowRoot || host.attachShadow({ mode: 'open' });
 
+    // Improved Theme Detection Logic
+    const initializeTheme = () => {
+        // Clear previous classes to start fresh
+        host.classList.remove('theme-dark', 'theme-light');
+        
+        // Check if the current page has a specific theme set via class on body or html
+        const bodyTheme = document.body.getAttribute('data-theme') || document.documentElement.getAttribute('data-theme');
+        const hasDarkClass = document.body.classList.contains('dark-theme') || document.documentElement.classList.contains('dark-theme');
+        const hasLightClass = document.body.classList.contains('light-theme') || document.documentElement.classList.contains('light-theme');
+
+        if (bodyTheme === 'dark' || hasDarkClass) {
+            host.classList.add('theme-dark');
+        } else if (bodyTheme === 'light' || hasLightClass) {
+            host.classList.add('theme-light');
+        }
+        // If neither, it follows the @media (prefers-color-scheme) in the CSS automatically
+    };
+
     const styles = `
         :host {
             --nav-bg: #050505;
@@ -171,13 +188,15 @@
             pointer-events: none;
         }
 
+        /* Default "Auto" behavior using system preference */
         @media (prefers-color-scheme: light) {
-            :host(:not(.theme-dark)) {
+            :host {
                 --nav-bg: #f8f9fa; --nav-text: #008800; --nav-link: #555;
                 --nav-border: #ccc; --nav-card: #ffffff; --nav-meta: #888; --nav-heading: #111;
             }
         }
 
+        /* Explicit Overrides */
         :host(.theme-light) {
             --nav-bg: #f8f9fa !important; --nav-text: #008800 !important; --nav-link: #555 !important;
             --nav-border: #ccc !important; --nav-card: #ffffff !important; --nav-meta: #888 !important; --nav-heading: #111 !important;
@@ -259,8 +278,10 @@
 
         .repo-card {
             border: 1px solid var(--nav-border); padding: 16px; background: var(--nav-card);
-            display: flex; flex-direction: column; justify-content: flex-start; transition: border-color 0.2s;
-            overflow: hidden; box-sizing: border-box; min-height: 120px; width: 100%;
+            display: flex; flex-direction: column; justify-content: space-between; transition: border-color 0.2s;
+            overflow: hidden; box-sizing: border-box; 
+            min-height: 120px; height: auto; /* Allow auto-scaling */
+            width: 100%;
         }
         .repo-card:hover { border-color: var(--nav-text); }
         .repo-card h3 { 
@@ -269,7 +290,7 @@
         }
         .repo-meta { font-size: 10px; color: var(--nav-meta); margin: 8px 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
         .badge-fork { color: #ffaa00; border: 1px solid #ffaa00; padding: 1px 4px; border-radius: 3px; font-size: 9px; }
-        .repo-desc { font-size: 11px; color: var(--nav-meta); margin: 0; line-height: 1.5; overflow-wrap: break-word; }
+        .repo-desc { font-size: 11px; color: var(--nav-meta); margin: 0; line-height: 1.5; overflow-wrap: break-word; flex-grow: 1; }
         .card-actions { text-align: right; margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); }
         .btn-sm { font-size: 10px; text-decoration: none; color: var(--nav-link); margin-left: 10px; }
         .btn-sm.primary { color: var(--nav-text); font-weight: bold; }
@@ -313,8 +334,7 @@
                 transform: none; 
                 opacity: 1; 
                 visibility: visible;
-                /* Calc height to reach bottom of screen: 100vh minus the height of open nav parts */
-                max-height: calc(100vh - 300px); 
+                max-height: calc(100vh - 250px); 
                 overflow-y: auto;
                 height: auto;
             }
@@ -358,6 +378,7 @@
         </div>
     `;
 
+    initializeTheme();
     shadow.querySelectorAll('.js-ascii').forEach(el => createASCIIShift(el));
 
     const unhideBtn = shadow.getElementById('nav-unhide-btn');
@@ -375,7 +396,7 @@
             let finalLink = repo.homepage || repo.html_url;
             return `
                 <div class="repo-card">
-                    <div style="flex-grow: 1;">
+                    <div style="display: flex; flex-direction: column; flex-grow: 1;">
                         <h3 class="js-ascii-repo">${repo.fork ? '&#9282;' : '📂'} ${repo.name}</h3>
                         <div class="repo-meta">
                             ${repo.fork ? '<span class="badge-fork">FORK</span>' : ''}
