@@ -11,11 +11,9 @@
         document.head.appendChild(meta);
     }
 
-    // Link resolution
     const baseHome = isPrimary ? 'https://usr40k.dev/' : 'https://40476.github.io/40476/';
     const baseGizmos = isPrimary ? 'https://gizmos.usr40k.dev/' : 'https://40476.github.io/web-gizmos/';
 
-    // Detect locked layout
     const isLockedLayout = window.getComputedStyle(document.body).overflow === 'hidden' || 
                            window.getComputedStyle(document.documentElement).overflow === 'hidden';
 
@@ -48,7 +46,6 @@
         const updateCursorPos = (e) => {
             const textNode = el.firstChild;
             if (!textNode || textNode.nodeType !== 3) return;
-
             const range = document.createRange();
             let closestIdx = 0;
             let closestDist = Infinity;
@@ -58,11 +55,9 @@
                 range.setEnd(textNode, i + 1);
                 const rect = range.getBoundingClientRect();
                 if (!rect.width && !rect.height) continue;
-
                 const dx = e.clientX - (rect.left + rect.width / 2);
                 const dy = e.clientY - (rect.top + rect.height / 2);
                 const dist = Math.sqrt(dx * dx + dy * dy);
-
                 if (dist < closestDist) {
                     closestDist = dist;
                     closestIdx = i;
@@ -83,14 +78,12 @@
         const calcWaveEffect = (charIdx, t) => {
             let shouldAnim = false;
             let resultChar = origChars[charIdx];
-
             for (const w of waves) {
                 const age = t - w.startTime;
                 const prog = Math.min(age / cfg.dur, 1);
                 const dist = Math.abs(charIdx - w.startPos);
                 const maxDist = Math.max(w.startPos, origChars.length - w.startPos - 1);
                 const rad = (prog * (maxDist + WAVE_BUF)) / cfg.spread;
-
                 if (dist <= rad) {
                     shouldAnim = true;
                     const intens = Math.max(0, rad - dist);
@@ -265,19 +258,19 @@
         #repo-check:checked ~ .mega-drop { visibility: visible; opacity: 1; transform: translateY(0); }
 
         .repo-card {
-            border: 1px solid var(--nav-border); padding: 12px; background: var(--nav-card);
-            display: flex; flex-direction: column; justify-content: space-between; transition: border-color 0.2s;
-            overflow: hidden; box-sizing: border-box; width: 100%;
+            border: 1px solid var(--nav-border); padding: 16px; background: var(--nav-card);
+            display: flex; flex-direction: column; justify-content: flex-start; transition: border-color 0.2s;
+            overflow: hidden; box-sizing: border-box; min-height: 120px; width: 100%;
         }
         .repo-card:hover { border-color: var(--nav-text); }
         .repo-card h3 { 
             margin: 0; font-size: 14px; color: var(--nav-heading); font-weight: bold; 
             cursor: pointer; width: fit-content; line-height: 1.4;
         }
-        .repo-meta { font-size: 10px; color: var(--nav-meta); margin: 5px 0; display: flex; gap: 8px; align-items: center; }
+        .repo-meta { font-size: 10px; color: var(--nav-meta); margin: 8px 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
         .badge-fork { color: #ffaa00; border: 1px solid #ffaa00; padding: 1px 4px; border-radius: 3px; font-size: 9px; }
-        .repo-desc { font-size: 11px; color: var(--nav-meta); margin: 0; line-height: 1.5; }
-        .card-actions { text-align: right; margin-top: 10px; }
+        .repo-desc { font-size: 11px; color: var(--nav-meta); margin: 0; line-height: 1.5; overflow-wrap: break-word; }
+        .card-actions { text-align: right; margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); }
         .btn-sm { font-size: 10px; text-decoration: none; color: var(--nav-link); margin-left: 10px; }
         .btn-sm.primary { color: var(--nav-text); font-weight: bold; }
 
@@ -288,16 +281,50 @@
             font-size: 11px; border-radius: 0 0 5px 5px; pointer-events: auto;
         }
 
-        /* Responsive adjustments */
         @media (max-width: 900px) {
-            #wrap { position: absolute; top: 0; left: 0; }
+            #wrap { position: absolute; top: 0; left: 0; height: auto; }
             nav { flex-direction: column; height: auto; padding: 0; align-items: stretch; }
             .mobile-label { display: flex; border-bottom: 1px solid var(--nav-border); }
-            .nav-links { display: none; flex-direction: column; height: auto; background: var(--nav-bg); width: 100%; }
+            
+            .nav-links { 
+                display: none; 
+                flex-direction: column; 
+                height: auto; 
+                width: 100%; 
+                align-items: stretch; /* Fixes children height compression */
+            }
             #mobile-toggle:checked ~ .nav-links { display: flex; }
-            .item { width: 100%; min-height: 50px; border-bottom: 1px solid var(--nav-border); justify-content: flex-start; padding: 0 20px; }
-            .mega-drop { position: relative; top: 0; grid-template-columns: 1fr; display: none; padding: 15px; transform: none; opacity: 1; visibility: visible; }
+            
+            .item { 
+                width: 100%; 
+                height: 50px; 
+                border-bottom: 1px solid var(--nav-border); 
+                justify-content: flex-start; 
+                padding: 0 20px; 
+                flex-shrink: 0;
+            }
+
+            /* The mega drop wrapper logic on mobile */
+            .mega-drop { 
+                position: relative; 
+                top: 0; 
+                grid-template-columns: 1fr; 
+                display: none; 
+                padding: 15px; 
+                transform: none; 
+                opacity: 1; 
+                visibility: visible; 
+                max-height: none; 
+                height: auto !important; /* Forces auto height expansion */
+            }
             #repo-check:checked ~ .mega-drop { display: grid; }
+            
+            /* Ensure the cards inside the expanded menu don't collapse */
+            .repo-card { 
+                height: auto !important; 
+                min-height: 100px; 
+                margin-bottom: 10px;
+            }
         }
     `;
 
@@ -344,29 +371,11 @@
         const r = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=20`);
         const data = await r.json();
         const container = shadow.getElementById('repo-inject');
-        const repoItems = await Promise.all(data.map(async repo => {
+        const repoItems = data.map(repo => {
             let finalLink = repo.homepage || repo.html_url;
-            if (repo.description && repo.description.includes('!header')) {
-                try {
-                    const lReq = await fetch(`https://raw.githubusercontent.com/${repo.full_name}/${repo.default_branch}/header.json`);
-                    if (lReq.ok) {
-                        const headerData = await lReq.json();
-                        if (headerData.rules?.autohideregex?.some(rx => new RegExp(rx).test(currentUrl))) {
-                            host.classList.add('nav-collapsed');
-                            unhideBtn.style.display = 'block';
-                            if (!isLockedLayout) document.documentElement.style.paddingTop = '0px';
-                        }
-                        if (headerData.rules?.theme) {
-                            host.classList.remove('theme-light', 'theme-dark');
-                            const newTheme = headerData.rules.theme === 'light' ? 'theme-light' : 'theme-dark';
-                            host.classList.add(newTheme);
-                        }
-                    }
-                } catch(e) {}
-            }
             return `
                 <div class="repo-card">
-                    <div>
+                    <div style="flex-grow: 1;">
                         <h3 class="js-ascii-repo">${repo.fork ? '&#9282;' : '📂'} ${repo.name}</h3>
                         <div class="repo-meta">
                             ${repo.fork ? '<span class="badge-fork">FORK</span>' : ''}
@@ -380,7 +389,7 @@
                         <a href="${finalLink}" target="_blank" class="btn-sm primary">>> OPEN</a>
                     </div>
                 </div>`;
-        }));
+        });
         container.innerHTML = repoItems.join('');
     } catch(e) {
         shadow.getElementById('repo-inject').innerHTML = "<p style='padding:20px; color:red;'>Error connecting to GitHub.</p>";
