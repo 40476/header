@@ -3,6 +3,14 @@
     const currentUrl = window.location.href;
     const isPrimary = window.location.hostname.includes('usr40k.dev');
 
+    // Ensure viewport meta tag exists for mobile scaling
+    if (!document.querySelector('meta[name="viewport"]')) {
+        const meta = document.createElement('meta');
+        meta.name = "viewport";
+        meta.content = "width=device-width, initial-scale=1.0";
+        document.head.appendChild(meta);
+    }
+
     // Link resolution
     const baseHome = isPrimary ? 'https://usr40k.dev/' : 'https://40476.github.io/40476/';
     const baseGizmos = isPrimary ? 'https://gizmos.usr40k.dev/' : 'https://40476.github.io/web-gizmos/';
@@ -121,7 +129,6 @@
                 el.style.width = `${origW}px`;
                 el.style.display = 'inline-block';
                 el.style.verticalAlign = 'middle';
-                // Enforce current line height to prevent vertical jitter
                 el.style.lineHeight = `${rect.height}px`;
             }
             isAnim = true;
@@ -201,6 +208,7 @@
             justify-content: center;
             pointer-events: auto;
             width: 100%;
+            box-sizing: border-box;
         }
 
         nav {
@@ -241,6 +249,7 @@
         .mobile-label {
             display: none; font-size: 14px; color: var(--nav-text); padding: 0 15px;
             cursor: pointer; height: var(--nav-height); align-items: center; font-weight: bold;
+            box-sizing: border-box;
         }
 
         #repo-check { display: none; }
@@ -248,7 +257,7 @@
             visibility: hidden; opacity: 0; transform: translateY(-10px);
             position: absolute; top: var(--nav-height); left: 0; width: 100%;
             background: var(--nav-bg); border-bottom: 2px solid var(--nav-text);
-            padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 15px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             max-height: 80vh; overflow-y: auto; box-sizing: border-box; z-index: 10;
         }
@@ -258,7 +267,7 @@
         .repo-card {
             border: 1px solid var(--nav-border); padding: 12px; background: var(--nav-card);
             display: flex; flex-direction: column; justify-content: space-between; transition: border-color 0.2s;
-            overflow: hidden;
+            overflow: hidden; box-sizing: border-box; width: 100%;
         }
         .repo-card:hover { border-color: var(--nav-text); }
         .repo-card h3 { 
@@ -267,7 +276,7 @@
         }
         .repo-meta { font-size: 10px; color: var(--nav-meta); margin: 5px 0; display: flex; gap: 8px; align-items: center; }
         .badge-fork { color: #ffaa00; border: 1px solid #ffaa00; padding: 1px 4px; border-radius: 3px; font-size: 9px; }
-        .repo-desc { font-size: 11px; color: var(--nav-meta); margin: 0; }
+        .repo-desc { font-size: 11px; color: var(--nav-meta); margin: 0; line-height: 1.5; }
         .card-actions { text-align: right; margin-top: 10px; }
         .btn-sm { font-size: 10px; text-decoration: none; color: var(--nav-link); margin-left: 10px; }
         .btn-sm.primary { color: var(--nav-text); font-weight: bold; }
@@ -279,14 +288,15 @@
             font-size: 11px; border-radius: 0 0 5px 5px; pointer-events: auto;
         }
 
-        @media (max-width: 850px) {
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
             #wrap { position: absolute; top: 0; left: 0; }
             nav { flex-direction: column; height: auto; padding: 0; align-items: stretch; }
             .mobile-label { display: flex; border-bottom: 1px solid var(--nav-border); }
-            .nav-links { display: none; flex-direction: column; height: auto; background: var(--nav-bg); }
+            .nav-links { display: none; flex-direction: column; height: auto; background: var(--nav-bg); width: 100%; }
             #mobile-toggle:checked ~ .nav-links { display: flex; }
-            .item { width: 100%; height: 50px; border-bottom: 1px solid var(--nav-border); justify-content: flex-start; padding: 0 20px; }
-            .mega-drop { position: relative; top: 0; grid-template-columns: 1fr; display: none; padding: 10px; transform: none; }
+            .item { width: 100%; min-height: 50px; border-bottom: 1px solid var(--nav-border); justify-content: flex-start; padding: 0 20px; }
+            .mega-drop { position: relative; top: 0; grid-template-columns: 1fr; display: none; padding: 15px; transform: none; opacity: 1; visibility: visible; }
             #repo-check:checked ~ .mega-drop { display: grid; }
         }
     `;
@@ -347,10 +357,7 @@
                             if (!isLockedLayout) document.documentElement.style.paddingTop = '0px';
                         }
                         if (headerData.rules?.theme) {
-                            // Remove both possible theme classes to ensure a clean override
                             host.classList.remove('theme-light', 'theme-dark');
-                            
-                            // Apply the theme from JSON
                             const newTheme = headerData.rules.theme === 'light' ? 'theme-light' : 'theme-dark';
                             host.classList.add(newTheme);
                         }
@@ -375,15 +382,16 @@
                 </div>`;
         }));
         container.innerHTML = repoItems.join('');
-        // shadow.querySelectorAll('.js-ascii-repo').forEach(el => createASCIIShift(el));
     } catch(e) {
         shadow.getElementById('repo-inject').innerHTML = "<p style='padding:20px; color:red;'>Error connecting to GitHub.</p>";
     }
 
     document.addEventListener('click', (e) => {
         if (!host.contains(e.target)) {
-            shadow.getElementById('repo-check').checked = false;
-            shadow.getElementById('mobile-toggle').checked = false;
+            const rc = shadow.getElementById('repo-check');
+            const mt = shadow.getElementById('mobile-toggle');
+            if (rc) rc.checked = false;
+            if (mt) mt.checked = false;
         }
     });
 })();
