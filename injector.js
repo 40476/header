@@ -9,7 +9,129 @@
     // Detect if the page is using a locked layout (like Gizmos)
     const isLockedLayout = window.getComputedStyle(document.body).overflow === 'hidden' || 
                            window.getComputedStyle(document.documentElement).overflow === 'hidden';
+    /**
+     * ASCII ripple animation logic
+     */
+    const createASCIIShift = (el, opts = {}) => {
+        const WAVE_THRESH = 3;
+        const CHAR_MULT = 3;
+        const ANIM_STEP = 40;
+        const WAVE_BUF = 5;
 
+        let origTxt = el.textContent;
+        let origChars = origTxt.split("");
+        let isAnim = false;
+        let cursorPos = 0;
+        let waves = [];
+        let animId = null;
+        let isHover = false;
+        let origW = null;
+
+        const cfg = {
+            dur: 1400,
+            chars: '.,·-─~+:;=*π""┐┌┘┴┬╗╔╝╚╬╠╣╩╦║░▒▓█▄▀▌▐■!?&#$@0123456789*',
+            preserveSpaces: true,
+            spread: 0.3,
+            ...opts
+        };
+
+        const updateCursorPos = (e) => {
+            const textNode = el.firstChild;
+            if (!textNode || textNode.nodeType !== 3) return;
+            const range = document.createRange();
+            let closestIdx = 0;
+            let closestDist = Infinity;
+
+            for (let i = 0; i < textNode.length; i++) {
+                range.setStart(textNode, i);
+                range.setEnd(textNode, i + 1);
+                const rect = range.getBoundingClientRect();
+                if (!rect.width && !rect.height) continue;
+                const dx = e.clientX - (rect.left + rect.width / 2);
+                const dy = e.clientY - (rect.top + rect.height / 2);
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    closestIdx = i;
+                }
+            }
+            cursorPos = closestIdx;
+        };
+
+        const startWave = () => {
+            waves.push({ startPos: cursorPos, startTime: Date.now(), id: Math.random() });
+            if (!isAnim) start();
+        };
+
+        const cleanupWaves = (t) => {
+            waves = waves.filter((w) => t - w.startTime < cfg.dur);
+        };
+
+        const calcWaveEffect = (charIdx, t) => {
+            let shouldAnim = false;
+            let resultChar = origChars[charIdx];
+            for (const w of waves) {
+                const age = t - w.startTime;
+                const prog = Math.min(age / cfg.dur, 1);
+                const dist = Math.abs(charIdx - w.startPos);
+                const maxDist = Math.max(w.startPos, origChars.length - w.startPos - 1);
+                const rad = (prog * (maxDist + WAVE_BUF)) / cfg.spread;
+                if (dist <= rad) {
+                    shouldAnim = true;
+                    const intens = Math.max(0, rad - dist);
+                    if (intens <= WAVE_THRESH && intens > 0) {
+                        const idx = (dist * CHAR_MULT + Math.floor(age / ANIM_STEP)) % cfg.chars.length;
+                        resultChar = cfg.chars[idx];
+                    }
+                }
+            }
+            return { shouldAnim, char: resultChar };
+        };
+
+        const genScrambledTxt = (t) =>
+            origChars.map((char, i) => {
+                if (cfg.preserveSpaces && char === " ") return " ";
+                const res = calcWaveEffect(i, t);
+                return res.shouldAnim ? res.char : char;
+            }).join("");
+
+        const stop = () => {
+            el.textContent = origTxt;
+            if (origW !== null) { 
+                el.style.width = ""; 
+                el.style.display = "";
+                el.style.lineHeight = "";
+                origW = null; 
+            }
+            isAnim = false;
+        };
+
+        const start = () => {
+            if (isAnim) return;
+            if (origW === null) {
+                const rect = el.getBoundingClientRect();
+                origW = Math.ceil(rect.width);
+                el.style.width = `${origW}px`;
+                el.style.display = 'inline-block';
+                el.style.verticalAlign = 'middle';
+                el.style.lineHeight = `${rect.height}px`;
+            }
+            isAnim = true;
+            const animate = () => {
+                const t = Date.now();
+                cleanupWaves(t);
+                if (waves.length === 0) { stop(); return; }
+                el.textContent = genScrambledTxt(t);
+                animId = requestAnimationFrame(animate);
+            };
+            animId = requestAnimationFrame(animate);
+        };
+
+        el.addEventListener("mouseenter", (e) => { isHover = true; updateCursorPos(e); startWave(); });
+        el.addEventListener("mousemove", (e) => { if (!isHover) return; const old = cursorPos; updateCursorPos(e); if (cursorPos !== old) startWave(); });
+        el.addEventListener("mouseleave", () => { isHover = false; });
+    };
+    
     const style = `
     /* Default: Dark Theme */
     #mega-nav-wrap {
@@ -236,7 +358,8 @@
     `;
 
     document.body.insertAdjacentHTML('afterbegin', html);
-
+    shadow.querySelectorAll('.mega-nav-item').forEach(el => createASCIIShift(el));
+    
     const navWrap = document.getElementById('mega-nav-wrap');
     const unhideBtn = document.getElementById('nav-unhide-btn');
     const currentUrl = window.location.href;
