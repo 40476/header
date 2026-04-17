@@ -288,7 +288,7 @@
         justify-content: space-between !important; 
         transition: background-color 0.3s ease; 
     }
-    #mega-nav-wrap .repo-card h3 { margin: 0 !important; font-size: 14px !important; color: var(--nav-heading) !important; font-family: inherit !important; font-weight: bold !important;}
+    #mega-nav-wrap .repo-card h3 { display: inline-block; margin: 0 !important; font-size: 14px !important; color: var(--nav-heading) !important; font-family: inherit !important; font-weight: bold !important;}
     #mega-nav-wrap .repo-meta { font-size: 10px !important; color: var(--nav-meta) !important; margin: 5px 0 !important; display: flex !important; gap: 8px !important; align-items: center !important; }
     #mega-nav-wrap .badge-fork { color: #ffaa00 !important; border: 1px solid #ffaa00 !important; padding: 1px 4px !important; border-radius: 3px !important; font-size: 9px !important; }
 
