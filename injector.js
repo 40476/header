@@ -487,6 +487,7 @@
         }));
 
         container.innerHTML = repoItems.join('');
+        document.body.querySelectorAll('.repo-card h3').forEach(el => createASCIIShift(el));
     } catch(e) {
         document.getElementById('repo-inject').innerHTML = "<p style='padding:20px; color:red;'>Error connecting to GitHub.</p>";
     }
