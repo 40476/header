@@ -439,7 +439,7 @@
                                 if (shouldHide) {
                                     navWrap.classList.add('nav-collapsed');
                                     unhideBtn.style.display = 'block';
-                                    unhideBtn.innerText = '▼ NAV'; 
+                                    unhideBtn.innerText = '▼'; 
                                 }
                             }
 
