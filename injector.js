@@ -297,7 +297,7 @@
     #nav-unhide-btn {
         display: none; 
         position: absolute; 
-        bottom: -20px;
+        bottom: -22px;
         right: 5px; 
         background: var(--nav-bg); 
         color: var(--nav-text); 
