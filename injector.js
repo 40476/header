@@ -29,7 +29,7 @@
 
         const cfg = {
             dur: 1400,
-            chars: '.,·-─~+:;=*π""┐┌┘┴┬╗╔╝╚╬╠╣╩╦║░▒▓█▄▀▌▐■!?&#$@0123456789*',
+            chars: '.,·-─~+:;=*""!?&#$@0123456789*',
             preserveSpaces: true,
             spread: 0.3,
             ...opts
@@ -297,8 +297,8 @@
     #nav-unhide-btn {
         display: none; 
         position: absolute; 
-        bottom: -24px;
-        right: 20px; 
+        bottom: -20px;
+        right: 5px; 
         background: var(--nav-bg); 
         color: var(--nav-text); 
         padding: 4px 12px; 
@@ -338,7 +338,7 @@
     const html = `
     <style>${style}</style>
     <div id="mega-nav-wrap">
-        <div id="nav-unhide-btn">▼ NAV</div>
+        <div id="nav-unhide-btn">▼</div>
         <input type="checkbox" id="mobile-check">
         <label for="mobile-check" class="mobile-label">☰ [ MENU ]</label>
         <nav class="nav-inner">
@@ -369,10 +369,10 @@
         const isCollapsed = navWrap.classList.contains('nav-collapsed');
         if (isCollapsed) {
             navWrap.classList.remove('nav-collapsed');
-            unhideBtn.innerText = '▲ HIDE';
+            unhideBtn.innerText = '▲';
         } else {
             navWrap.classList.add('nav-collapsed');
-            unhideBtn.innerText = '▼ NAV';
+            unhideBtn.innerText = '▼';
         }
     });
 
