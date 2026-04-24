@@ -1,4 +1,12 @@
 (async function() {
+
+
+    if (!document.body) {
+        await new Promise(resolve => {
+            window.addEventListener('DOMContentLoaded', resolve);
+        });
+    }
+    
     const GITHUB_USERNAME = '40476';
     const isPrimary = window.location.hostname.includes('usr40k.dev');
 
