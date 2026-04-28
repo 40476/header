@@ -153,6 +153,7 @@
     };
     
     const style = `
+    
     #mega-nav-wrap {
         --nav-bg: #050505;
         --nav-text: #00ff00;
@@ -189,12 +190,11 @@
         transition: transform 0.3s ease, background-color 0.3s ease !important;
     }
 
-    #mega-nav-wrap.nav-collapsed { transform: translateY(-100%) !important; }
-    #mega-nav-wrap * { box-sizing: border-box !important; }
-    
-    #mega-nav-wrap .nav-inner { 
+#mega-nav-wrap .nav-inner { 
         display: flex !important; 
+        flex-direction: row !important; /* Forces horizontal layout */
         align-items: center !important; 
+        justify-content: flex-start !important; /* Aligns items to the left */
         max-width: 1400px !important; 
         margin: 0 auto !important; 
         height: 50px !important; 
@@ -202,9 +202,16 @@
         position: relative !important;
     }
 
+    /* This ensures the dropdown container doesn't break the flex flow */
+    .nav-item-wrapper {
+        display: flex !important;
+        align-items: center !important;
+    }
+
     #nav-extension-zone {
         flex: 1 !important;
         display: flex !important;
+        flex-direction: row !important; /* Horizontal items in the zone */
         justify-content: center !important;
         align-items: center !important;
         gap: 15px !important;
@@ -220,11 +227,9 @@
         font-size: 12px !important;
         outline: none !important;
         width: 100% !important;
-        max-width: 300px !important;
+        max-width: 200px !important; /* Shrunk slightly for better horizontal fit */
         border-radius: 2px !important;
     }
-
-    .nav-search-box:focus { border-color: var(--nav-text) !important; box-shadow: 0 0 5px var(--nav-text); }
 
     .nav-ext-btn {
         background: var(--nav-card) !important;
@@ -234,19 +239,24 @@
         padding: 4px 10px !important;
         cursor: pointer !important;
         text-transform: uppercase !important;
-        transition: all 0.2s ease !important;
+        white-space: nowrap !important; /* Prevent text wrapping */
     }
-
-    .nav-ext-btn:hover { border-color: var(--nav-text) !important; color: var(--nav-text) !important; }
 
     #mega-nav-wrap .mega-nav-item { 
         color: var(--nav-link) !important; 
         text-decoration: none !important; 
-        padding: 10px 12px !important; 
+        padding: 0 12px !important; /* Vertical padding removed to keep centered in 50px height */
+        line-height: 50px !important; /* Matches nav height for perfect centering */
         font-size: 13px !important; 
         cursor: pointer !important; 
         white-space: nowrap !important;
+        display: inline-block !important;
     }
+    #mega-nav-wrap.nav-collapsed { transform: translateY(-100%) !important; }
+    #mega-nav-wrap * { box-sizing: border-box !important; }
+    
+    .nav-search-box:focus { border-color: var(--nav-text) !important; box-shadow: 0 0 5px var(--nav-text); }
+
     
     #mega-nav-wrap .mega-nav-item:hover { color: var(--nav-text) !important; text-shadow: 0 0 5px var(--nav-text) !important; }
     
@@ -280,6 +290,7 @@
     }
 
     #repo-check, #mobile-check { display: none !important; }
+
 
     ${!isLockedLayout ? 'html { padding-top: 50px !important; }' : ''}
     `;
