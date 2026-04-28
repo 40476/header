@@ -1,6 +1,7 @@
 (async function() {
 
-
+    if(URLSearchParams(window.location.search).has('noheader')) return;
+    
     if (!document.body) {
         await new Promise(resolve => {
             window.addEventListener('DOMContentLoaded', resolve);
