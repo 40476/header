@@ -382,8 +382,6 @@
             <a class="mega-nav-item" href="${baseHome}">[ HOME ]</a>
             <a class="mega-nav-item" href="${baseGizmos}">[ GIZMOS ]</a>
             
-            <!-- INJECTION POINT FOR PER-PAGE LINKS -->
-            <div id="custom-links-inject"></div>
             
             <div style="display: contents;">
                 <input type="checkbox" id="repo-check">
@@ -394,6 +392,8 @@
             </div>
             <a class="mega-nav-item" href="https://matrix.to/#/@usr_40476:4d2.org" target="_blank">@MATRIX</a>
             <a class="mega-nav-item" href="${baseHome}?page=links_and_contact">CONTACT</a>
+
+            <div id="custom-links-inject"></div>
         </nav>
     </div>
     `;
