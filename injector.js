@@ -2,6 +2,34 @@
 
     if(new URLSearchParams(window.location.search).has('noheader')) return;
     
+    window.MegaNavConfig = window.MegaNavConfig || {};
+    window.MegaNavConfig.customLinks = window.MegaNavConfig.customLinks || [];
+    window.MegaNavConfig.registerLink = function(link) {
+        // link: { label: string, href?: string, onClick?: function }
+        window.MegaNavConfig.customLinks.push(link);
+        // If the nav is already rendered, inject immediately
+        const container = document.getElementById('custom-links-inject');
+        if (container) {
+            renderCustomLink(link, container);
+        }
+    };
+    
+    const renderCustomLink = (link, container) => {
+        const a = document.createElement('a');
+        a.className = 'mega-nav-item custom-link';
+        a.textContent = `[ ${link.label.toUpperCase()} ]`;
+        if (link.href) a.href = link.href;
+        if (link.onClick) {
+            a.style.cursor = 'pointer';
+            a.addEventListener('click', (e) => {
+                if (!link.href) e.preventDefault();
+                link.onClick(e);
+            });
+        }
+        container.appendChild(a);
+        if (typeof createASCIIShift === 'function') createASCIIShift(a);
+    };
+    
     if (!document.body) {
         await new Promise(resolve => {
             window.addEventListener('DOMContentLoaded', resolve);
@@ -347,26 +375,33 @@
     const html = `
     <style>${style}</style>
     <div id="mega-nav-wrap">
-        <div id="nav-unhide-btn">▼</div>
-        <input type="checkbox" id="mobile-check">
-        <label for="mobile-check" class="mobile-label">☰ [ MENU ]</label>
+        <div id="nav-unhide-btn" style="display:none; position:absolute; bottom:-22px; right:5px; background:var(--nav-bg); color:var(--nav-text); padding:4px 12px; cursor:pointer; border:1px solid var(--nav-border); border-top:none; border-radius:0 0 5px 5px;">▼</div>
+        <input type="checkbox" id="mobile-check" style="display:none;">
+        <label for="mobile-check" style="display:none; padding:10px; cursor:pointer; color:var(--nav-text);">☰ [ MENU ]</label>
         <nav class="nav-inner">
             <a class="mega-nav-item" href="${baseHome}">[ HOME ]</a>
             <a class="mega-nav-item" href="${baseGizmos}">[ GIZMOS ]</a>
+            
+            <!-- INJECTION POINT FOR PER-PAGE LINKS -->
+            <div id="custom-links-inject"></div>
+    
             <div style="display: contents;">
-                <input type="checkbox" id="repo-check">
+                <input type="checkbox" id="repo-check" style="display:none;">
                 <label for="repo-check" class="mega-nav-item">/REPOSITORIES/ ▾</label>
-                <div class="mega-drop" id="repo-inject">
-                    <p style="padding: 20px; color: var(--nav-meta);">Accessing GitHub API...</p>
+                <div class="mega-drop" id="repo-inject" style="visibility:hidden; opacity:0; position:absolute; top:50px; left:0; width:100%; background:var(--nav-bg); border-bottom:2px solid var(--nav-text); display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:15px; padding:20px; transition:0.3s; z-index:1000;">
+                    <p style="color: var(--nav-meta);">Loading...</p>
                 </div>
             </div>
             <a class="mega-nav-item" href="https://matrix.to/#/@usr_40476:4d2.org" target="_blank">@MATRIX</a>
-            <a class="mega-nav-item" href="${baseHome}?page=links_and_contact">CONTACT</a>
         </nav>
     </div>
     `;
     
     document.body.insertAdjacentHTML('afterbegin', html);
+    const customContainer = document.getElementById('custom-links-inject');
+    
+    // Render any links registered before the script loaded
+    // window.MegaNavConfig.customLinks.forEach(link => renderCustomLink(link, customContainer));
 
     document.body.querySelectorAll('.mega-nav-item').forEach(el => createASCIIShift(el));
     
