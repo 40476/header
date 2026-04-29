@@ -532,4 +532,5 @@
     } catch(e) {
         document.getElementById('repo-inject').innerHTML = "<p style='padding:20px; color:red;'>Error connecting to GitHub.</p>";
     }
+    window.dispatchEvent(new CustomEvent('MegaNavReady'));
 })();
