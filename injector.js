@@ -1,6 +1,6 @@
 (async function() {
 
-    if(URLSearchParams(window.location.search).has('noheader')) return;
+    if(new URLSearchParams(window.location.search).has('noheader')) return;
     
     if (!document.body) {
         await new Promise(resolve => {
