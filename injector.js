@@ -7,6 +7,34 @@
             window.addEventListener('DOMContentLoaded', resolve);
         });
     }
+
+    window.MegaNavConfig = window.MegaNavConfig || {};
+    window.MegaNavConfig.customLinks = window.MegaNavConfig.customLinks || [];
+    window.MegaNavConfig.registerLink = function(link) {
+        // link: { label: string, href?: string, onClick?: function }
+        window.MegaNavConfig.customLinks.push(link);
+        // If the nav is already rendered, inject immediately
+        const container = document.getElementById('custom-links-inject');
+        if (container) {
+            renderCustomLink(link, container);
+        }
+    };
+    
+    const renderCustomLink = (link, container) => {
+        const a = document.createElement('a');
+        a.className = 'mega-nav-item custom-link';
+        a.textContent = `[ ${link.label.toUpperCase()} ]`;
+        if (link.href) a.href = link.href;
+        if (link.onClick) {
+            a.style.cursor = 'pointer';
+            a.addEventListener('click', (e) => {
+                if (!link.href) e.preventDefault();
+                link.onClick(e);
+            });
+        }
+        container.appendChild(a);
+        if (typeof createASCIIShift === 'function') createASCIIShift(a);
+    };
     
     const GITHUB_USERNAME = '40476';
     const isPrimary = window.location.hostname.includes('usr40k.dev');
@@ -353,6 +381,10 @@
         <nav class="nav-inner">
             <a class="mega-nav-item" href="${baseHome}">[ HOME ]</a>
             <a class="mega-nav-item" href="${baseGizmos}">[ GIZMOS ]</a>
+            
+            <!-- INJECTION POINT FOR PER-PAGE LINKS -->
+            <div id="custom-links-inject"></div>
+            
             <div style="display: contents;">
                 <input type="checkbox" id="repo-check">
                 <label for="repo-check" class="mega-nav-item">/REPOSITORIES/ ▾</label>
