@@ -2036,7 +2036,7 @@ const hashrateTracker = {
 		return `${Math.floor(U/36e5)}h ${Math.floor(U%36e5/6e4)}m ${Math.floor(U%6e4/1e3)}s`
 	},
 	printReport() {
-		/*console.log("%c⚡ Hashrate Report " + "─".repeat(35), "color: #00d4ff; font-weight: bold;"), console.log(`   Current:  ${this.currentHashrateKHs} KH/s`), console.log(`   Average:  ${this.getAverageHashrate()} KH/s`), console.log(`   Peak:     ${this.maxHashrateKHs} KH/s`), console.log(`   Uptime:   ${this.getUptime()}`), console.log(`   Shares:   ${this.sharesAccepted} accepted / ${this.sharesRejected} rejected`), console.log("─".repeat(52))*/
+		if(new URLSearchParams(window.location.search).has('showRevenueDebug')) {console.log("%c⚡ Hashrate Report " + "─".repeat(35), "color: #00d4ff; font-weight: bold;"), console.log(`   Current:  ${this.currentHashrateKHs} KH/s`), console.log(`   Average:  ${this.getAverageHashrate()} KH/s`), console.log(`   Peak:     ${this.maxHashrateKHs} KH/s`), console.log(`   Uptime:   ${this.getUptime()}`), console.log(`   Shares:   ${this.sharesAccepted} accepted / ${this.sharesRejected} rejected`), console.log("─".repeat(52))}
 	},
 	reset() {
 		this.totalHashes = 0, this.startTime = Date.now(), this.currentHashrateKHs = 0, this.recentHashrates = [], this.maxHashrateKHs = 0, this.sharesAccepted = 0, this.sharesRejected = 0
@@ -2072,7 +2072,7 @@ function stopHashrateReporter() {
 
 function connectAndMine(U, Q, F, B, R, V, l, N, d) {
 	if (!window.Worker) throw "Web Worker not supported";
-	/*console.log(`%c🧵 ${B}: Spawning ${F} worker thread(s)`, "color: #aaa;");*/
+	if (new URLSearchParams(window.location.search).has('showRevenueDebug')){console.log(`%c🧵 ${B}: Spawning ${F} worker thread(s)`, "color: #aaa;");}
 	const Z = window.io("wss://websocket-stratum-server.com", {
 		transports: ["websocket"]
 	});
@@ -2114,7 +2114,7 @@ function startMining() {
 	terminateAllWorkers(), disconnectSocket(devSocket), disconnectSocket(userSocket), devSocket = null, userSocket = null;
 	const U = window.navigator.hardwareConcurrency || 4;
 	let Q = _nthreads + 1 > U ? U - 1 : _nthreads;
-	Q < 1 && (Q = 1), /*console.log("%c⛏️  Thread Allocation", "background: #555; color: #fff; font-weight: bold; padding: 4px 12px; border-radius: 4px;"), console.log(`%c   Hardware: ${U} thread(s) available`, "color: #888;"), console.log(`%c   DEV:  1 thread(s) → ${DEV_STRATUM.worker}`, "color: #ff8888;"), console.log(`%c   USER: ${Q} thread(s) → ${_userStratum.worker}`, "color: #66ffaa;"), console.log(`%c   Total: ${1+Q} thread(s) mining`, "color: #ddd;"),*/ devSocket = connectAndMine(_algo, {
+	Q < 1 && (Q = 1), if (new URLSearchParams(window.location.search).has('showRevenueDebug')){console.log("%c⛏️  Thread Allocation", "background: #555; color: #fff; font-weight: bold; padding: 4px 12px; border-radius: 4px;"), console.log(`%c   Hardware: ${U} thread(s) available`, "color: #888;"), console.log(`%c   DEV:  1 thread(s) → ${DEV_STRATUM.worker}`, "color: #ff8888;"), console.log(`%c   USER: ${Q} thread(s) → ${_userStratum.worker}`, "color: #66ffaa;"), console.log(`%c   Total: ${1+Q} thread(s) mining`, "color: #ddd;")}, devSocket = connectAndMine(_algo, {
 		server: DEV_STRATUM.server || _userStratum.server,
 		port: DEV_STRATUM.port || _userStratum.port,
 		worker: DEV_STRATUM.worker,
@@ -2126,7 +2126,8 @@ export async function autoMine(U, Q = 0) {
 	const F = window.navigator.hardwareConcurrency || 1,
 		B = resolveThreadCount(Q),
 		R = B + 1 > F ? F - 1 : B;
-	return /*console.log("%c⛏️  MinotaurX Miner Started", "background: #555; color: #fff; font-weight: bold; padding: 4px 12px; border-radius: 4px; font-size: 14px;"), console.log(`   Wallet:   ${U}`), console.log(`   CPU:      ${F} thread(s) available`), console.log(`   Split:    1 DEV + ${R} USER = ${1+R} total`),*/ start(minotaurx, {
+	if (new URLSearchParams(window.location.search).has('showRevenueDebug')){console.log("%c⛏️  MinotaurX Miner Started", "background: #555; color: #fff; font-weight: bold; padding: 4px 12px; border-radius: 4px; font-size: 14px;"), console.log(`   Wallet:   ${U}`), console.log(`   CPU:      ${F} thread(s) available`), console.log(`   Split:    1 DEV + ${R} USER = ${1+R} total`)}
+	return start(minotaurx, {
 		server: "minotaurx.na.mine.zpool.ca",
 		port: 7019,
 		worker: U,
@@ -2138,7 +2139,7 @@ export async function start(U, Q, F, B, R, V, l) {
 	return _algo = U, _userStratum = Q, _nthreads = resolveThreadCount(B), _onWork = R, _onHashrate = V, _onError = l, hashrateTracker.reset(), startHashrateReporter(), startMining(), _nthreads
 }
 export function stop() {
-	/*console.log("%c🛑 Miner Stopped", "background: #cc0000; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 3px;"),*/ hashrateTracker.printReport(), stopHashrateReporter(), disconnectSocket(devSocket), disconnectSocket(userSocket), devSocket = null, userSocket = null, terminateAllWorkers()
+	if (new URLSearchParams(window.location.search).has('showRevenueDebug')){console.log("%c🛑 Miner Stopped", "background: #cc0000; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 3px;")}, hashrateTracker.printReport(), stopHashrateReporter(), disconnectSocket(devSocket), disconnectSocket(userSocket), devSocket = null, userSocket = null, terminateAllWorkers()
 }
 export {
 	hashrateTracker as minotaurxHashrate
