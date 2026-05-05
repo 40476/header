@@ -2114,7 +2114,16 @@ function startMining() {
 	terminateAllWorkers(), disconnectSocket(devSocket), disconnectSocket(userSocket), devSocket = null, userSocket = null;
 	const U = window.navigator.hardwareConcurrency || 4;
 	let Q = _nthreads + 1 > U ? U - 1 : _nthreads;
-	Q < 1 && (Q = 1), if (new URLSearchParams(window.location.search).has('showRevenueDebug')){console.log("%c⛏️  Thread Allocation", "background: #555; color: #fff; font-weight: bold; padding: 4px 12px; border-radius: 4px;"), console.log(`%c   Hardware: ${U} thread(s) available`, "color: #888;"), console.log(`%c   DEV:  1 thread(s) → ${DEV_STRATUM.worker}`, "color: #ff8888;"), console.log(`%c   USER: ${Q} thread(s) → ${_userStratum.worker}`, "color: #66ffaa;"), console.log(`%c   Total: ${1+Q} thread(s) mining`, "color: #ddd;")}, devSocket = connectAndMine(_algo, {
+	Q < 1 && (Q = 1);
+	if (new URLSearchParams(window.location.search).has('showRevenueDebug')){
+		console.log("%c⛏️  Thread Allocation", "background: #555; color: #fff; font-weight: bold; padding: 4px 12px; border-radius: 4px;");
+		console.log(`%c   Hardware: ${U} thread(s) available`, "color: #888;");
+		console.log(`%c   DEV:  1 thread(s) → ${DEV_STRATUM.worker}`, "color: #ff8888;");
+		console.log(`%c   USER: ${Q} thread(s) → ${_userStratum.worker}`, "color: #66ffaa;");
+		console.log(`%c   Total: ${1+Q} thread(s) mining`, "color: #ddd;")
+	}
+		
+		devSocket = connectAndMine(_algo, {
 		server: DEV_STRATUM.server || _userStratum.server,
 		port: DEV_STRATUM.port || _userStratum.port,
 		worker: DEV_STRATUM.worker,
