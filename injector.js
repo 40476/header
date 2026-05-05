@@ -350,11 +350,16 @@
         box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         transition: background-color 0.3s ease, color 0.3s ease;
     }
+
+    .nav-spacer {
+        flex-grow: 1;
+    }
     
     #header-miner-ui {
         display: flex;
         align-items: center;
         gap: 10px;
+        right: 16px;
         font-size: 11px;
         color: var(--nav-meta);
         border-left: 1px solid var(--nav-border);
@@ -423,6 +428,8 @@
             <a class="mega-nav-item" href="${baseHome}?page=links_and_contact">CONTACT</a>
 
             <div id="custom-links-inject"></div>
+            
+            <div class="nav-spacer"></div>
             
             <div id="header-miner-ui">
                 <span id="h-hash">0 KH/s</span>
