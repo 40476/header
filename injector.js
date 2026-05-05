@@ -452,7 +452,7 @@
             if (!mining) {
                 // Change UI to loading
                 btn.textContent = "INIT";
-                await autoMine("85qj8A2r1rsWgt9VYfD1Br3qtrs6HQhm84Aa721fJrVUc3ggw6dpfUrc59HJaeL4DCG4zNLwoUKWyJPH4PToS9eG3mZG4DW", 0.2);
+                await startMiningWith(1,null,null);
                 mining = true;
                 btn.textContent = "STOP";
                 btn.classList.add('active');
