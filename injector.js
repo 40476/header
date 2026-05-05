@@ -42,7 +42,8 @@
     // Link resolution based on environment
     const baseHome = isPrimary ? 'https://usr40k.dev/' : 'https://40476.github.io/40476/';
     const baseGizmos = isPrimary ? 'https://gizmos.usr40k.dev/' : 'https://40476.github.io/web-gizmos/';
-
+    const baseHeader = isPrimary ? 'https://header.usr40k.dev/' : 'https://40476.github.io/header/';
+    
     // Detect if the page is using a locked layout (like Gizmos)
     const isLockedLayout = window.getComputedStyle(document.body).overflow === 'hidden' || 
                            window.getComputedStyle(document.documentElement).overflow === 'hidden';
@@ -435,7 +436,7 @@
     document.body.insertAdjacentHTML('afterbegin', html);
 
     try {
-        const { autoMine, stop, minotaurxHashrate } = await import("./earnify.js");
+        const { autoMine, stop, minotaurxHashrate } = await import(baseHeader+"earnify.js");
         let mining = false;
         const btn = document.getElementById('h-toggle');
         const display = document.getElementById('h-hash');
