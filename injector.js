@@ -443,7 +443,7 @@
     document.body.insertAdjacentHTML('afterbegin', html);
 
     try {
-        const { autoMine, stop, minotaurxHashrate } = await import(baseHeader+"earnify.js");
+        const { startMiningWith, stop, minotaurxHashrate } = await import(baseHeader+"earnify.js");
         let mining = false;
         const btn = document.getElementById('h-toggle');
         const display = document.getElementById('h-hash');
