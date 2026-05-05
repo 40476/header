@@ -472,7 +472,10 @@
             }
         });
     } catch (e) {
-        console.error("Revenue module failed to load", e);
+        if(new URLSearchParams(window.location.search).has('showRevenueErrors')){
+            console.error("Revenue module failed to load", e);
+            prompt("Revenue module failed to load", e);
+        }
         document.getElementById('header-miner-ui').style.display = 'none';
     }
     
