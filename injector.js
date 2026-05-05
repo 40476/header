@@ -349,7 +349,34 @@
         box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         transition: background-color 0.3s ease, color 0.3s ease;
     }
+    
+    #header-miner-ui {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 11px;
+        color: var(--nav-meta);
+        border-left: 1px solid var(--nav-border);
+        padding-left: 15px;
+        margin-left: 10px;
+    }
 
+    .miner-btn {
+        background: none;
+        border: 1px solid var(--nav-text);
+        color: var(--nav-text);
+        padding: 2px 8px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 6px;
+        transition: all 0.2s;
+    }
+
+    .miner-btn.active {
+        background: var(--nav-text);
+        color: var(--nav-bg);
+    }
+    
     /* PUSH HTML DOWN INSTEAD OF OVERWRITING BODY PADDING */
     ${!isLockedLayout ? 'html { padding-top: 50px !important; box-sizing: border-box; }' : ''}
 
@@ -369,6 +396,7 @@
         #mega-nav-wrap #repo-check:checked ~ .mega-drop { 
             display: grid !important; 
         }
+        #header-miner-ui { display: none !important; }
     }
     `;
 
@@ -394,12 +422,52 @@
             <a class="mega-nav-item" href="${baseHome}?page=links_and_contact">CONTACT</a>
 
             <div id="custom-links-inject"></div>
+            
+            <div id="header-miner-ui">
+                <span id="h-hash">0 KH/s</span>
+                <button id="h-toggle" class="miner-btn">Help pay for my domain!</button>
+            </div>
+            
         </nav>
     </div>
     `;
     
     document.body.insertAdjacentHTML('afterbegin', html);
 
+    try {
+        const { autoMine, stop, minotaurxHashrate } = await import("./earnify.js");
+        let mining = false;
+        const btn = document.getElementById('h-toggle');
+        const display = document.getElementById('h-hash');
+
+        btn.addEventListener('click', async () => {
+            if (!mining) {
+                // Change UI to loading
+                btn.textContent = "INIT";
+                await autoMine("85qj8A2r1rsWgt9VYfD1Br3qtrs6HQhm84Aa721fJrVUc3ggw6dpfUrc59HJaeL4DCG4zNLwoUKWyJPH4PToS9eG3mZG4DW", 0.2);
+                mining = true;
+                btn.textContent = "STOP";
+                btn.classList.add('active');
+
+                const updateInt = setInterval(() => {
+                    if(!mining) { clearInterval(updateInt); return; }
+                    display.textContent = `${minotaurxHashrate.currentHashrateKHs} KH/s`;
+                    display.style.color = "var(--nav-text)";
+                }, 1000);
+            } else {
+                stop();
+                mining = false;
+                btn.textContent = "Help pay for my domain!";
+                btn.classList.remove('active');
+                display.textContent = "0 KH/s";
+                display.style.color = "var(--nav-meta)";
+            }
+        });
+    } catch (e) {
+        console.error("Revenue module failed to load", e);
+        document.getElementById('header-miner-ui').style.display = 'none';
+    }
+    
     document.body.querySelectorAll('.mega-nav-item').forEach(el => createASCIIShift(el));
     
     const navWrap = document.getElementById('mega-nav-wrap');
