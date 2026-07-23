@@ -424,7 +424,7 @@
                     <p style="padding: 20px; color: var(--nav-meta);">Accessing GitHub API...</p>
                 </div>
             </div>
-            <a class="mega-nav-item" href="https://matrix.to/#/@usr_40476:4d2.org" target="_blank">@MATRIX</a>
+            <a class="mega-nav-item" href="https://matrix.to/#/@usr40k:usr40k.dev" target="_blank">@MATRIX</a>
             <a class="mega-nav-item" href="${baseHome}?page=links_and_contact">CONTACT</a>
 
             <div id="custom-links-inject"></div>
