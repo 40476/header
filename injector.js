@@ -173,13 +173,13 @@
     const style = `
     /* Default: Dark Theme */
     #mega-nav-wrap {
-        --nav-bg: #050505;
-        --nav-text: #00ff00;
-        --nav-link: #888;
-        --nav-border: #222;
-        --nav-card: #0a0a0a;
-        --nav-meta: #555;
-        --nav-heading: #fff;
+        --nav-bg: rgba(6, 14, 20, 0.82);
+        --nav-text: #69f3ff;
+        --nav-link: #a9c7d4;
+        --nav-border: rgba(105, 243, 255, 0.22);
+        --nav-card: rgba(11, 19, 24, 0.92);
+        --nav-meta: #9dbccc;
+        --nav-heading: #eefcff;
     }
 
     /* Light Theme Overrides */
@@ -234,15 +234,17 @@
         all: initial; 
         font-family: ui-monospace, 'Cascadia Code', monospace; 
         display: block; 
-        /* CHANGED TO FIXED: This takes it out of the app body's flexbox flow */
         position: ${isLockedLayout ? 'absolute' : 'fixed'}; 
         top: 0; 
         left: 0;
         width: 100%; 
         z-index: 9999999; 
-        background: var(--nav-bg) !important; 
+        background: rgba(6, 14, 20, 0.82) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         color: var(--nav-text) !important; 
         border-bottom: 1px solid var(--nav-border) !important;
+        box-shadow: 0 12px 34px rgba(0,0,0,0.2);
         box-sizing: border-box !important;
         transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease !important;
     }
